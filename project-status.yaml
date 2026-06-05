@@ -1,0 +1,13 @@
+project: aios-squad-cockpit
+status: development
+tech_lead: Diego William
+environment: Antigravity
+global_adrs: _CORE_SKILLS/docs/ADR/agents-ia/
+stack: 
+  - react
+  - vite
+  - css
+decisions: 
+  - Implementação do frontend com renderização pixelada
+  - Uso de engine de grid tile 16x16
+  - Animação de spritesheets via CSS keyframes com snap (steps/step-end)

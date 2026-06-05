@@ -16,7 +16,7 @@ const STANDING_FRAME = 0; // frame 0 is usually standing or first walk frame
 const FACING_ROW = 0;    // row 0 = facing down (towards viewer)
 
 // Display scale — each frame is exactly 14x24 pixels
-const SPRITE_W = 14;
+const SPRITE_W = 16;
 const SPRITE_H = 24;
 
 // The sprite images are fetched from the pixel-agents repo assets
@@ -30,7 +30,7 @@ function getSpriteStyle(charFile, dir = 0) {
     width: SPRITE_W,
     height: SPRITE_H,
     backgroundImage: `url('/${charFile}.png')`,
-    backgroundPosition: `-14px ${bgY}px`,
+    backgroundPosition: `-16px ${bgY}px`,
     backgroundRepeat: "no-repeat",
     backgroundSize: "112px 96px",
     imageRendering: "pixelated",
