@@ -93,33 +93,40 @@ const AGENTS = [
   },
 ];
 
-/* Sprite sheet dimensions — each character is roughly 1/7 of width */
-const SHEET_W = 1024;
-const SHEET_H = 1024;
-const SPRITE_DISPLAY_W = 52;
-const SPRITE_DISPLAY_H = 68;
+/* Sprite sheet layout:
+   Each sheet (row1, row2) has 6 characters in the top half + 6 repeated in bottom
+   We use only the top half (row 1 of each sheet).
+   Sheet: 1024x1024, 6 chars per row → cellW = 1024/6 ≈ 170px, cellH = 512px
+*/
+const SHEET_COLS  = 6;
+const SHEET_W     = 1024;
+const SHEET_H     = 1024;
+const CELL_W      = SHEET_W / SHEET_COLS;    // ~170px per character
+const CELL_H      = SHEET_H / 2;             // 512px (use top half only)
 
-/* Calculate bg-position to crop a specific character from sheet */
+// Display size — small & authentic, like VS Code pixel agents
+const SPRITE_W = 40;
+const SPRITE_H = 52;
+
+/* Calculate cropping for a specific character */
 function getSpriteStyle(spriteRow, spriteCol) {
-  // Row 1: top half, Row 2: bottom half  (sheet has 2 rows of 7 chars)
-  const cols = 7;
-  const cellW = SHEET_W / cols;
-  const cellH = SHEET_H / 2;
+  const scaleX = SPRITE_W / CELL_W;
+  const scaleY = SPRITE_H / CELL_H;
 
-  const bgX = -(spriteCol * cellW) * (SPRITE_DISPLAY_W / cellW);
-  const bgY = spriteRow === 1 ? 0 : -(SPRITE_DISPLAY_H);
-
-  const scaleX = SPRITE_DISPLAY_W / cellW;
-  const scaleY = SPRITE_DISPLAY_H / cellH;
+  const bgX = -(spriteCol * CELL_W * scaleX);
+  const bgY = 0; // always use top half of each sheet
 
   return {
-    width: SPRITE_DISPLAY_W,
-    height: SPRITE_DISPLAY_H,
+    width:  SPRITE_W,
+    height: SPRITE_H,
     backgroundImage: `url('/sprites_row${spriteRow}.png')`,
     backgroundSize: `${SHEET_W * scaleX}px ${SHEET_H * scaleY}px`,
     backgroundPosition: `${bgX}px ${bgY}px`,
     backgroundRepeat: "no-repeat",
     imageRendering: "pixelated",
+    // KEY: removes the black background from the sprite sheet
+    mixBlendMode: "screen",
+    filter: "contrast(1.1) brightness(1.05)",
   };
 }
 

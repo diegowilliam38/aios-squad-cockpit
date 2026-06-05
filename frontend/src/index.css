@@ -130,9 +130,12 @@ body {
   align-items: center;
   cursor: pointer;
   z-index: 10;
-  transition: filter 0.3s;
+  /* use isolation to confine blend mode to this stacking context */
+  isolation: auto;
 }
-.agent-on-map:hover { filter: brightness(1.2); }
+.agent-on-map:hover .agent-sprite-wrap {
+  filter: brightness(1.15) drop-shadow(0 0 6px rgba(255,255,255,0.4));
+}
 
 .agent-sprite-img {
   width: 48px;
@@ -143,24 +146,28 @@ body {
 
 .agent-sprite-wrap {
   position: relative;
+  /* shadow under feet for depth */
+  filter: drop-shadow(0 4px 3px rgba(0,0,0,0.6));
 }
 
 /* Name tag under sprite */
 .agent-name-tag {
   font-family: var(--retro);
-  font-size: 0.75rem;
-  color: #fff;
-  background: rgba(0,0,0,0.7);
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.85);
+  background: rgba(0,0,0,0.55);
   padding: 1px 5px;
-  border: 1px solid rgba(255,255,255,0.2);
   white-space: nowrap;
-  margin-top: 1px;
+  margin-top: 2px;
   text-align: center;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 .agent-name-tag.active-tag {
   color: var(--cyan);
-  border-color: var(--cyan);
+  background: rgba(0,0,0,0.75);
   text-shadow: 0 0 6px var(--cyan);
+  border-bottom-color: var(--cyan);
 }
 
 /* Selection ring when active */
