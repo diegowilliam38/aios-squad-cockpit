@@ -1,235 +1,293 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 
-/* ─── AGENT DEFINITIONS ──────────────────────────────────── */
-const SQUAD_AGENTS = [
-  // Floor 1 — Planning + Architecture
-  { id: "analyst",        name: "Analyst",     role: "ROI & Biz",      floor: 1, color: "#f77f00", pants: "#7c3f00", skin: "#f4c178", label: "@analyst" },
-  { id: "pm",             name: "PM",          role: "Backlog",        floor: 1, color: "#fee440", pants: "#7a6d00", skin: "#f4c178", label: "@pm" },
-  { id: "sm",             name: "Scrum",       role: "Stories",        floor: 1, color: "#00bbf9", pants: "#004f80", skin: "#f9c784", label: "@sm" },
-  { id: "architect",      name: "Architect",   role: "Tech Design",    floor: 1, color: "#9b5de5", pants: "#3b1a6b", skin: "#e8b88a", label: "@arch" },
-  { id: "ux-design-expert", name: "UX Expert", role: "Design Sys",    floor: 1, color: "#ff0055", pants: "#6b0020", skin: "#f9c784", label: "@ux" },
-  // Floor 2 — Dev + Quality & Ops
-  { id: "dev",            name: "Developer",   role: "Core Code",      floor: 2, color: "#00ff66", pants: "#004d20", skin: "#f4c178", label: "@dev" },
-  { id: "prompt-engineer",name: "Prompt Eng.", role: "AI Guard",       floor: 2, color: "#00f5d4", pants: "#004d44", skin: "#e8b88a", label: "@prompt" },
-  { id: "security-auditor",name: "SecAudit",   role: "CVEs",           floor: 2, color: "#d62828", pants: "#4d0000", skin: "#f4c178", label: "@sec" },
-  { id: "lint-and-validate",name: "Linter",    role: "Style",          floor: 2, color: "#94a3b8", pants: "#334155", skin: "#f9c784", label: "@lint" },
-  { id: "doc-coauthoring",  name: "DocWriter", role: "Docs",           floor: 2, color: "#a2d2ff", pants: "#1e3a5f", skin: "#f4c178", label: "@doc" },
-  { id: "qa",             name: "QA Tester",   role: "E2E Tests",      floor: 2, color: "#e2e8f0", pants: "#475569", skin: "#e8b88a", label: "@qa" },
-  { id: "devops",         name: "DevOps",      role: "CI/CD",          floor: 2, color: "#ffb703", pants: "#7a5500", skin: "#f9c784", label: "@devops" },
+/* ─────────────────────────────────────────────────────────────
+   AGENT DEFINITIONS
+   pos: {x, y} = percentage position on the office map image
+   spriteRow: which sprite sheet (1 or 2)
+   spriteCol: column index in that sheet (0-based, 0..6)
+───────────────────────────────────────────────────────────── */
+const AGENTS = [
+  {
+    id: "analyst", name: "Analyst", label: "@analyst", role: "Business & ROI",
+    pos: { x: 19, y: 33 }, spriteRow: 1, spriteCol: 0,
+    color: "#f77f00",
+    bubbles: ["🔍 Analisando ROI...", "📊 Calculando viabilidade...", "💡 Insights gerados!"],
+    dialogTexts: ["Iniciando análise de ROI do projeto...", "Mapeando dores do usuário...", "Relatório de viabilidade concluído!"],
+  },
+  {
+    id: "pm", name: "PM", label: "@pm", role: "Backlog & PRD",
+    pos: { x: 35, y: 33 }, spriteRow: 1, spriteCol: 1,
+    color: "#fee440",
+    bubbles: ["📝 Priorizando backlog...", "✏️ Escrevendo PRD...", "✅ Story criada!"],
+    dialogTexts: ["Refinando backlog com base na análise...", "Escrevendo o PRD do produto...", "Backlog priorizado e documentado!"],
+  },
+  {
+    id: "sm", name: "Scrum", label: "@sm", role: "Sprints & Stories",
+    pos: { x: 52, y: 33 }, spriteRow: 1, spriteCol: 2,
+    color: "#00bbf9",
+    bubbles: ["📋 Criando sprint...", "🗓️ Definindo stories...", "✅ Sprint planejada!"],
+    dialogTexts: ["Quebrando PRD em stories atômicas...", "Estimando pontos do sprint...", "Sprint configurada no projeto!"],
+  },
+  {
+    id: "architect", name: "Architect", label: "@arch", role: "Tech Design",
+    pos: { x: 69, y: 33 }, spriteRow: 1, spriteCol: 3,
+    color: "#9b5de5",
+    bubbles: ["📐 Desenhando arquitetura...", "🗺️ Diagrama Mermaid...", "✅ ADR criado!"],
+    dialogTexts: ["Propondo topologia técnica e padrões...", "Gerando diagrama C4 + Mermaid...", "ADR rascunhado para revisão do Tech Lead!"],
+  },
+  {
+    id: "ux-design-expert", name: "UX Expert", label: "@ux", role: "Design System",
+    pos: { x: 83, y: 33 }, spriteRow: 1, spriteCol: 4,
+    color: "#ff0055",
+    bubbles: ["🎨 Criando design system...", "🖌️ Wireframing...", "✅ Componentes prontos!"],
+    dialogTexts: ["Definindo tokens de design para o produto...", "Criando wireframes das telas principais...", "Design system e componentes entregues!"],
+  },
+  {
+    id: "dev", name: "Developer", label: "@dev", role: "Core Code",
+    pos: { x: 19, y: 63 }, spriteRow: 1, spriteCol: 5,
+    color: "#00ff66",
+    bubbles: ["💻 Codando...", "⌨️ Implementando feature...", "✅ Build passando!"],
+    dialogTexts: ["Executando subtask de implementação...", "Escrevendo código seguindo a spec...", "Feature implementada. Build verde!"],
+  },
+  {
+    id: "prompt-engineer", name: "Prompt Eng.", label: "@prompt", role: "AI Guard",
+    pos: { x: 33, y: 63 }, spriteRow: 2, spriteCol: 0,
+    color: "#00f5d4",
+    bubbles: ["🛡️ Revisando prompts...", "🤖 Testando LLM...", "✅ Prompts validados!"],
+    dialogTexts: ["Revisando prompts LangGraph e RAG...", "Testando resistência a injection...", "Prompts calibrados e documentados!"],
+  },
+  {
+    id: "security-auditor", name: "SecAudit", label: "@sec", role: "Security",
+    pos: { x: 47, y: 63 }, spriteRow: 2, spriteCol: 1,
+    color: "#d62828",
+    bubbles: ["🔐 Auditando código...", "🔎 Escaneando CVEs...", "✅ Zero críticos!"],
+    dialogTexts: ["Iniciando auditoria de segurança do código...", "Rodando Snyk scan e checando CVEs...", "Auditoria concluída. Zero itens críticos!"],
+  },
+  {
+    id: "lint-and-validate", name: "Linter", label: "@lint", role: "Style & Lint",
+    pos: { x: 58, y: 63 }, spriteRow: 2, spriteCol: 2,
+    color: "#94a3b8",
+    bubbles: ["🧹 Lintando código...", "✍️ Padronizando estilo...", "✅ Zero erros!"],
+    dialogTexts: ["Executando ESLint e checagens de padrão...", "Corrigindo formatação e consistência...", "Código padronizado. Zero erros de lint!"],
+  },
+  {
+    id: "doc-coauthoring", name: "DocWriter", label: "@doc", role: "Documentation",
+    pos: { x: 68, y: 63 }, spriteRow: 2, spriteCol: 3,
+    color: "#a2d2ff",
+    bubbles: ["📚 Documentando...", "✏️ Escrevendo ADR...", "✅ Docs gerados!"],
+    dialogTexts: ["Documentando enquanto o contexto está vivo...", "Gerando ADR da decisão arquitetural...", "Documentação estruturada e commitada!"],
+  },
+  {
+    id: "qa", name: "QA Tester", label: "@qa", role: "Tests E2E",
+    pos: { x: 76, y: 63 }, spriteRow: 2, spriteCol: 4,
+    color: "#e2e8f0",
+    bubbles: ["🧪 Testando...", "🐛 Bug found!", "✅ Spec aprovada!"],
+    dialogTexts: ["Revisando spec vs implementação...", "Rodando testes unitários e E2E...", "Build aprovado. Spec 100% coberta!"],
+  },
+  {
+    id: "devops", name: "DevOps", label: "@devops", role: "CI/CD & Push",
+    pos: { x: 85, y: 63 }, spriteRow: 2, spriteCol: 5,
+    color: "#ffb703",
+    bubbles: ["🚀 Deploying...", "⚙️ CI/CD rodando...", "✅ Push feito!"],
+    dialogTexts: ["Configurando pipeline de CI/CD...", "Executando git push para produção...", "Deploy concluído com sucesso! 🎉"],
+  },
 ];
 
-const FLOOR_1 = SQUAD_AGENTS.filter(a => a.floor === 1);
-const FLOOR_2 = SQUAD_AGENTS.filter(a => a.floor === 2);
+/* Sprite sheet dimensions — each character is roughly 1/7 of width */
+const SHEET_W = 1024;
+const SHEET_H = 1024;
+const SPRITE_DISPLAY_W = 52;
+const SPRITE_DISPLAY_H = 68;
 
-/* ─── PIXEL SPRITE COMPONENT ────────────────────────────── */
-function PixelSprite({ agent, isActive }) {
-  const stateClass = isActive ? "state-working" : "state-idle";
-  return (
-    <div className={`pixel-character ${stateClass}`} title={agent.id}>
-      {/* Head */}
-      <div className="sprite-head" style={{ background: agent.skin }}>
-        <div className="sprite-eye-l" />
-        <div className="sprite-eye-r" />
-      </div>
-      {/* Body / shirt */}
-      <div className="sprite-body" style={{ background: agent.color, opacity: isActive ? 1 : 0.85 }} />
-      {/* Arms */}
-      <div className="sprite-arm-l" style={{ background: agent.color }} />
-      <div className="sprite-arm-r" style={{ background: agent.color }} />
-      {/* Legs / pants */}
-      <div className="sprite-leg-l" style={{ background: agent.pants }} />
-      <div className="sprite-leg-r" style={{ background: agent.pants }} />
-    </div>
-  );
+/* Calculate bg-position to crop a specific character from sheet */
+function getSpriteStyle(spriteRow, spriteCol) {
+  // Row 1: top half, Row 2: bottom half  (sheet has 2 rows of 7 chars)
+  const cols = 7;
+  const cellW = SHEET_W / cols;
+  const cellH = SHEET_H / 2;
+
+  const bgX = -(spriteCol * cellW) * (SPRITE_DISPLAY_W / cellW);
+  const bgY = spriteRow === 1 ? 0 : -(SPRITE_DISPLAY_H);
+
+  const scaleX = SPRITE_DISPLAY_W / cellW;
+  const scaleY = SPRITE_DISPLAY_H / cellH;
+
+  return {
+    width: SPRITE_DISPLAY_W,
+    height: SPRITE_DISPLAY_H,
+    backgroundImage: `url('/sprites_row${spriteRow}.png')`,
+    backgroundSize: `${SHEET_W * scaleX}px ${SHEET_H * scaleY}px`,
+    backgroundPosition: `${bgX}px ${bgY}px`,
+    backgroundRepeat: "no-repeat",
+    imageRendering: "pixelated",
+  };
 }
 
-/* ─── WORKSTATION COMPONENT ─────────────────────────────── */
-function Workstation({ agent, isActive }) {
-  const bubbleText =
-    agent.id === "dev"     ? "💻 Coding..." :
-    agent.id === "qa"      ? "🧪 Testing..." :
-    agent.id === "devops"  ? "🚀 Deploying..." :
-    agent.id === "architect" ? "📐 Designing..." :
-    agent.id === "security-auditor" ? "🔐 Scanning..." :
-    "⚙️ Working...";
+/* ─── AGENT ON MAP ────────────────────────────────────────── */
+function AgentOnMap({ agent, isActive, onClick }) {
+  const stateClass = isActive ? "state-active" : "state-idle";
+  const spriteStyle = getSpriteStyle(agent.spriteRow, agent.spriteCol);
 
-  return (
-    <div className="workstation" style={{ minWidth: 64 }}>
-      {/* Speech bubble when active */}
-      {isActive && (
-        <div className="speech-bubble">{bubbleText}</div>
-      )}
-
-      {/* Pixel sprite */}
-      <PixelSprite agent={agent} isActive={isActive} />
-
-      {/* Monitor */}
-      <div className={`monitor ${isActive ? "active" : ""}`} />
-
-      {/* Desk */}
-      <div className="desk-surface">
-        <div className={`desk-led ${isActive ? "active-led" : ""}`} />
-      </div>
-
-      {/* Name tag */}
-      <div className={`agent-tag ${isActive ? "active-tag" : ""}`}>
-        <div>{agent.name}</div>
-        <div style={{ color: isActive ? agent.color : "var(--text-secondary)", fontSize: "0.6rem" }}>
-          {agent.label}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ─── OFFICE FLOOR COMPONENT ────────────────────────────── */
-function OfficeFloor({ agents, activeAgent, floorNum }) {
-  const labels = floorNum === 1
-    ? "FLOOR 1 — PLANNING & ARCHITECTURE"
-    : "FLOOR 2 — DEVELOPMENT & QUALITY OPS";
-
-  return (
-    <div className="office-floor" style={{ justifyContent: "space-around", paddingTop: 56 }}>
-      <span className="floor-label">{labels}</span>
-
-      {/* Plant on the left */}
-      <div className="office-plant" style={{ alignSelf: "flex-end", marginBottom: 12 }} />
-
-      {agents.map((agent, i) => (
-        <React.Fragment key={agent.id}>
-          {/* Thin divider between agents (not after last) */}
-          {i > 0 && <div className="room-divider" style={{ height: 80, alignSelf: "flex-end", marginBottom: 16 }} />}
-          <Workstation agent={agent} isActive={activeAgent === agent.id} />
-        </React.Fragment>
-      ))}
-
-      {/* Plant on the right */}
-      <div className="office-plant" style={{ alignSelf: "flex-end", marginBottom: 12 }} />
-    </div>
-  );
-}
-
-/* ─── KANBAN CARD ────────────────────────────────────────── */
-function KanbanCard({ task, isDoing }) {
   return (
     <div
-      className={`kanban-card ${isDoing ? "kanban-doing-card" : ""}`}
-      style={{ borderLeft: `3px solid ${isDoing ? "var(--accent-cyan)" : "var(--border-color)"}` }}
+      className="agent-on-map"
+      style={{ left: `${agent.pos.x}%`, top: `${agent.pos.y}%` }}
+      onClick={() => onClick(agent.id)}
     >
-      <div style={{ fontSize: "0.78rem", color: "var(--text-primary)" }}>{task.text}</div>
+      <div className="agent-sprite-wrap">
+        {isActive && <div className="agent-ring" />}
+        {isActive && (
+          <div className="speech-bubble">
+            {agent.bubbles[Math.floor(Date.now() / 3000) % agent.bubbles.length]}
+          </div>
+        )}
+        <div className={`${stateClass}`} style={spriteStyle} />
+      </div>
+      <div className={`agent-name-tag ${isActive ? "active-tag" : ""}`}>
+        {agent.name}
+      </div>
+    </div>
+  );
+}
+
+/* ─── KANBAN CARD ─────────────────────────────────────────── */
+function KanbanCard({ task, status }) {
+  const cls = status === "doing" ? "card-doing" : status === "done" ? "card-done" : "";
+  return (
+    <div className={`kanban-card ${cls}`}>
+      <div style={{
+        textDecoration: status === "done" ? "line-through" : "none",
+        color: status === "done" ? "var(--muted)" : "var(--text)",
+        fontSize: "0.73rem"
+      }}>{task.text}</div>
       <div className="kanban-card-agent">@{task.agent}</div>
     </div>
   );
 }
 
-/* ─── APP ROOT ───────────────────────────────────────────── */
+/* ─── APP ─────────────────────────────────────────────────── */
 export default function App() {
-  const [projects, setProjects]           = useState([]);
-  const [selectedProject, setSelectedProject] = useState("");
-  const [projectStatus, setProjectStatus] = useState(null);
-  const [tasks, setTasks]                 = useState([]);
-  const [activeAgent, setActiveAgent]     = useState(null);
+  const [projects, setProjects]         = useState([]);
+  const [selected, setSelected]         = useState("");
+  const [projectStatus, setStatus]      = useState(null);
+  const [tasks, setTasks]               = useState([]);
+  const [activeAgent, setActiveAgent]   = useState(null);
+  const [dialogAgent, setDialogAgent]   = useState(null);
+  const [dialogLine, setDialogLine]     = useState(0);
 
-  // Simulation
-  const [simulationActive, setSimulationActive] = useState(false);
-  const [currentSimStep, setCurrentSimStep]     = useState(-1);
-  const [simSteps, setSimSteps]                 = useState([]);
+  const [simActive, setSimActive]       = useState(false);
+  const [simStep, setSimStep]           = useState(-1);
+  const [simSteps, setSimSteps]         = useState([]);
+
   const [logs, setLogs] = useState([
-    "▶ Sistema AIOS Squad Cockpit inicializado.",
-    "▶ Selecione um projeto ou clique em SIMULAR para ver o squad atuando.",
+    "▶ AIOS Squad Cockpit inicializado.",
+    "▶ Selecione um projeto ou pressione SIMULAR.",
   ]);
 
-  const consoleEndRef = useRef(null);
+  const consoleRef = useRef(null);
+
+  const addLog = useCallback((msg) => {
+    setLogs(prev => prev[prev.length - 1] === msg ? prev : [...prev, msg]);
+  }, []);
 
   /* Load projects */
   useEffect(() => {
     fetch("http://localhost:8124/api/projects")
       .then(r => r.json())
-      .then(data => { setProjects(data); if (data[0]) setSelectedProject(data[0]); })
-      .catch(() => addLog("❌ ERRO: Backend offline. Inicie o servidor na porta 8124.", "error"));
-  }, []);
+      .then(data => { setProjects(data); if (data[0]) setSelected(data[0]); })
+      .catch(() => addLog("❌ Backend offline. Porta 8124 não encontrada."));
+  }, [addLog]);
 
   /* Load project data */
-  const addLog = useCallback((msg, type = "info") => {
-    setLogs(prev => {
-      if (prev[prev.length - 1] === msg) return prev;
-      return [...prev, msg];
-    });
-  }, []);
-
-  const loadProjectData = useCallback((proj) => {
+  const loadData = useCallback((proj) => {
     if (!proj) return;
     fetch(`http://localhost:8124/api/projects/${proj}/status`)
-      .then(r => r.json()).then(setProjectStatus).catch(() => {});
+      .then(r => r.json()).then(setStatus).catch(() => {});
     fetch(`http://localhost:8124/api/projects/${proj}/tasks`)
       .then(r => r.json())
       .then(data => {
         setTasks(data);
-        if (!simulationActive) {
+        if (!simActive) {
           const doing = data.find(t => t.status === "doing");
-          setActiveAgent(doing ? doing.agent : null);
-          if (doing) addLog(`⚙️ LIVE: @${doing.agent} → "${doing.text}"`);
+          if (doing) {
+            setActiveAgent(doing.agent);
+            const ag = AGENTS.find(a => a.id === doing.agent);
+            if (ag) { setDialogAgent(ag); setDialogLine(0); }
+            addLog(`⚙️ LIVE: @${doing.agent} → "${doing.text}"`);
+          } else {
+            setActiveAgent(null);
+            setDialogAgent(null);
+          }
         }
       }).catch(() => {});
-  }, [simulationActive, addLog]);
+  }, [simActive, addLog]);
 
-  /* Poll workspace */
   useEffect(() => {
-    loadProjectData(selectedProject);
-    if (simulationActive) return;
-    const iv = setInterval(() => loadProjectData(selectedProject), 5000);
+    loadData(selected);
+    if (simActive) return;
+    const iv = setInterval(() => loadData(selected), 5000);
     return () => clearInterval(iv);
-  }, [selectedProject, simulationActive, loadProjectData]);
+  }, [selected, simActive, loadData]);
 
-  /* Load simulation steps */
+  /* Load sim steps */
   useEffect(() => {
     fetch("http://localhost:8124/api/simulation/steps")
       .then(r => r.json()).then(setSimSteps).catch(() => {});
   }, []);
 
-  /* Auto-scroll terminal */
-  useEffect(() => {
-    consoleEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [logs]);
+  /* Auto-scroll log */
+  useEffect(() => { consoleRef.current?.scrollIntoView({ behavior: "smooth" }); }, [logs]);
 
   /* Simulation loop */
   useEffect(() => {
-    if (!simulationActive || currentSimStep < 0 || currentSimStep >= simSteps.length) {
-      if (simulationActive && currentSimStep >= simSteps.length) {
-        setSimulationActive(false);
-        setActiveAgent(null);
-        addLog("🎉 CICLO COMPLETO! Todos os 12 agentes concluíram suas tarefas.");
+    if (!simActive || simStep < 0 || simStep >= simSteps.length) {
+      if (simActive && simStep >= simSteps.length) {
+        setSimActive(false); setActiveAgent(null); setDialogAgent(null);
+        addLog("🎉 CICLO COMPLETO! Todos os agentes concluíram suas tarefas.");
       }
       return;
     }
-    const step = simSteps[currentSimStep];
+    const step = simSteps[simStep];
     setActiveAgent(step.agent);
+    const ag = AGENTS.find(a => a.id === step.agent);
+    if (ag) { setDialogAgent(ag); setDialogLine(0); }
     addLog(step.log);
     setTasks(prev => prev.map(t => t.agent === step.agent ? { ...t, status: "doing" } : t));
 
-    const t = setTimeout(() => {
-      setTasks(prev => prev.map(t => t.agent === step.agent ? { ...t, status: "done" } : t));
-      setCurrentSimStep(c => c + 1);
-    }, step.duration);
-    return () => clearTimeout(t);
-  }, [simulationActive, currentSimStep, simSteps, addLog]);
+    // Cycle through dialog lines
+    let lineIdx = 0;
+    const lineIv = setInterval(() => {
+      lineIdx = (lineIdx + 1) % (ag?.dialogTexts?.length || 1);
+      setDialogLine(lineIdx);
+    }, 1200);
 
-  const startSimulation = () => {
+    const t = setTimeout(() => {
+      clearInterval(lineIv);
+      setTasks(prev => prev.map(t => t.agent === step.agent ? { ...t, status: "done" } : t));
+      setSimStep(s => s + 1);
+    }, step.duration);
+    return () => { clearTimeout(t); clearInterval(lineIv); };
+  }, [simActive, simStep, simSteps, addLog]);
+
+  const startSim = () => {
     if (!simSteps.length) return;
-    setSimulationActive(true);
-    setCurrentSimStep(0);
+    setSimActive(true); setSimStep(0);
     setTasks(prev => prev.map(t => ({ ...t, status: "todo" })));
-    setLogs([
-      "🚀 SIMULAÇÃO INICIADA — Ciclo completo do AIOS Squad",
-      "🏢 Todos os agentes tomaram seus postos...",
-    ]);
+    setLogs(["🚀 SIMULAÇÃO INICIADA", "🏢 Todos os agentes tomaram seus postos..."]);
   };
-  const stopSimulation = () => {
-    setSimulationActive(false);
-    setCurrentSimStep(-1);
-    setActiveAgent(null);
-    loadProjectData(selectedProject);
-    addLog("⏹ Simulação interrompida. Retornando ao monitoramento em tempo real.");
+  const stopSim = () => {
+    setSimActive(false); setSimStep(-1); setActiveAgent(null); setDialogAgent(null);
+    loadData(selected);
+    addLog("⏹ Simulação encerrada. Retornando ao monitoramento em tempo real.");
+  };
+
+  /* Click agent to inspect */
+  const handleAgentClick = (agentId) => {
+    const ag = AGENTS.find(a => a.id === agentId);
+    if (!ag || simActive) return;
+    setDialogAgent(ag);
+    setDialogLine(0);
+    addLog(`👆 Inspecionando: ${ag.name} — ${ag.role}`);
   };
 
   // Kanban groups
@@ -237,168 +295,166 @@ export default function App() {
   const doingTasks = tasks.filter(t => t.status === "doing");
   const doneTasks  = tasks.filter(t => t.status === "done");
 
-  // Log color mapper
-  const logColor = (log) => {
-    if (log.includes("❌") || log.includes("ERRO"))  return "var(--accent-red)";
-    if (log.includes("🎉") || log.includes("COMPLETO")) return "var(--text-retro)";
-    if (log.includes("🚀") || log.includes("devops")) return "var(--accent-orange)";
-    if (log.includes("💻") || log.includes("dev"))   return "var(--accent-cyan)";
-    if (log.includes("⏹"))  return "var(--accent-yellow)";
-    return "var(--text-primary)";
-  };
+  // Log coloring
+  const logColor = (log) =>
+    log.includes("❌") ? "var(--red)" :
+    log.includes("🎉") ? "var(--green)" :
+    log.includes("🚀") ? "var(--orange)" :
+    log.includes("💻") ? "var(--cyan)" :
+    log.includes("⏹")  ? "var(--yellow)" :
+    "var(--text)";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh", overflow: "hidden" }}>
-
-      {/* ── HEADER ─────────────────────────────────────── */}
-      <header className="cockpit-header">
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          <span style={{ fontSize: "2rem", filter: "drop-shadow(0 0 8px var(--accent-blue))" }}>🏢</span>
-          <div>
-            <div className="cockpit-title">AIOS SQUAD COCKPIT</div>
-            <div className="font-retro" style={{ fontSize: "0.8rem", color: "var(--text-secondary)" }}>
-              12-AGENT VISUAL OFFICE SIMULATOR — PIXEL ART EDITION
-            </div>
-          </div>
+    <div className="app">
+      {/* ── HEADER ──────────────────────────────────────── */}
+      <header className="header">
+        <div>
+          <div className="header-title">🏢 AIOS SQUAD COCKPIT</div>
+          <div className="header-sub">12-AGENT RPG OFFICE SIMULATOR — PIXEL ART EDITION</div>
         </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-          {/* Project badges */}
-          {projectStatus && (
-            <div style={{ display: "flex", gap: 8 }}>
-              <span className="badge badge-cyan">FASE: {projectStatus.phase?.toUpperCase()}</span>
-              <span className="badge badge-blue">STATUS: {projectStatus.status?.toUpperCase()}</span>
-            </div>
-          )}
-
-          {/* Project selector */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>
-            <label className="font-retro" style={{ fontSize: "0.7rem", color: "var(--text-secondary)" }}>PROJETO</label>
-            <select
-              value={selectedProject}
-              onChange={e => setSelectedProject(e.target.value)}
-              disabled={simulationActive}
-              style={{
-                background: "var(--bg-primary)", color: "#fff",
-                border: "2px solid var(--border-color)", padding: "6px 12px",
-                fontFamily: "'VT323', monospace", fontSize: "1rem", cursor: "pointer", outline: "none",
-              }}
-            >
-              {projects.map(p => <option key={p} value={p}>{p}</option>)}
-            </select>
-          </div>
-
-          {/* Sim button */}
-          {!simulationActive
-            ? <button id="btn-simulate" className="btn-sim btn-start" onClick={startSimulation}>▶ SIMULAR WORKFLOW</button>
-            : <button id="btn-stop"     className="btn-sim btn-stop"  onClick={stopSimulation}>⏹ PARAR</button>
+        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+          {projectStatus && <>
+            <span className="badge badge-cyan">FASE: {projectStatus.phase?.toUpperCase()}</span>
+            <span className="badge badge-blue">STATUS: {projectStatus.status?.toUpperCase()}</span>
+          </>}
+          {simActive
+            ? <span className="badge" style={{ color: "var(--green)", borderColor: "var(--green)", background: "rgba(0,255,102,0.1)", animation: "neon-glow 1s infinite" }}>● SIMULANDO</span>
+            : <span className="badge" style={{ color: "var(--muted)", borderColor: "var(--border-hi)" }}>○ MONITORANDO</span>
           }
         </div>
       </header>
 
-      {/* ── MAIN LAYOUT ────────────────────────────────── */}
-      <div className="cockpit-layout">
+      {/* ── MAIN ────────────────────────────────────────── */}
+      <div className="main">
 
-        {/* LEFT: Office Building + Terminal */}
-        <div className="cockpit-left">
+        {/* LEFT: Game pane */}
+        <div className="game-pane">
 
-          {/* Office Building */}
-          <section className="office-section">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span className="section-title font-retro" style={{ color: "var(--accent-cyan)" }}>
-                🏢 SQUAD OFFICE — SIDE VIEW
-              </span>
-              <span className="font-retro" style={{ color: "var(--text-secondary)", fontSize: "0.8rem" }}>
-                {activeAgent ? `ACTIVE: @${activeAgent}` : "ALL IDLE"}
-              </span>
-            </div>
+          {/* Office map */}
+          <div className="office-map">
+            <img src="/office_bg.png" alt="office" className="office-bg" />
 
-            <div className="office-building" style={{ flex: 1, overflow: "hidden" }}>
-              <OfficeFloor agents={FLOOR_1} activeAgent={activeAgent} floorNum={1} />
-              <OfficeFloor agents={FLOOR_2} activeAgent={activeAgent} floorNum={2} />
-            </div>
-          </section>
+            {/* Agents positioned on the map */}
+            {AGENTS.map(agent => (
+              <AgentOnMap
+                key={agent.id}
+                agent={agent}
+                isActive={activeAgent === agent.id}
+                onClick={handleAgentClick}
+              />
+            ))}
+          </div>
 
-          {/* CRT Terminal */}
-          <section className="terminal-section crt-overlay">
-            <div className="terminal-header">
-              <span className="font-retro" style={{ color: "var(--text-retro)", fontSize: "1.2rem" }}>
-                🖥 SQUAD TELEMETRY LOG
-              </span>
-              <span className="font-retro" style={{ color: "var(--text-secondary)", fontSize: "0.85rem" }}>
-                [{simulationActive ? "SIMULATING..." : "LIVE MONITOR"}]
-              </span>
-            </div>
-            <div className="terminal-log font-retro">
-              {logs.map((log, i) => (
-                <div key={i} style={{ color: logColor(log) }}>
-                  {log}{i === logs.length - 1 && <span className="terminal-cursor" />}
+          {/* RPG Dialog Box */}
+          <div className="dialog-box">
+            {dialogAgent ? (
+              <>
+                {/* Agent face */}
+                <div style={getSpriteStyle(dialogAgent.spriteRow, dialogAgent.spriteCol)}
+                  className="dialog-agent-face" />
+                <div className="dialog-text-wrap">
+                  <div className="dialog-speaker" style={{ color: dialogAgent.color }}>
+                    {dialogAgent.name}
+                    <span style={{ color: "var(--muted)", fontSize: "0.7rem", marginLeft: 8 }}>
+                      [{dialogAgent.role}]
+                    </span>
+                  </div>
+                  <div className="dialog-text">
+                    "{dialogAgent.dialogTexts[dialogLine]}"
+                    {activeAgent === dialogAgent.id && <span className="dialog-cursor" />}
+                  </div>
                 </div>
-              ))}
-              <div ref={consoleEndRef} />
-            </div>
-          </section>
+              </>
+            ) : (
+              <div className="dialog-text" style={{ color: "var(--muted)" }}>
+                Clique em um agente para inspecionar ou pressione SIMULAR WORKFLOW...
+                <span className="dialog-cursor" />
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* RIGHT: Kanban Board */}
-        <aside className="kanban-section">
-          <span className="section-title font-retro" style={{ color: "var(--accent-blue)" }}>
-            📋 SPRINT KANBAN
-          </span>
+        {/* RIGHT PANEL */}
+        <div className="right-panel">
 
-          {/* TO DO */}
-          <div className="kanban-col" style={{ background: "rgba(10,15,30,0.6)" }}>
-            <div className="kanban-col-header" style={{ color: "var(--text-secondary)" }}>
-              <span>A FAZER</span>
-              <span className="kanban-col-count badge">{todoTasks.length}</span>
+          {/* Kanban */}
+          <div className="kanban">
+            <div className="kanban-header">📋 SPRINT KANBAN</div>
+
+            {/* TO DO */}
+            <div className="kanban-col" style={{ background: "rgba(5,8,20,0.5)" }}>
+              <div className="kanban-col-head" style={{ color: "var(--muted)" }}>
+                <span>A FAZER</span>
+                <span className="kanban-col-count badge">{todoTasks.length}</span>
+              </div>
+              <div className="kanban-list">
+                {todoTasks.map(t => <KanbanCard key={t.id} task={t} status="todo" />)}
+                {!todoTasks.length && <div className="kanban-empty">— vazio —</div>}
+              </div>
             </div>
-            <div className="kanban-list">
-              {todoTasks.map(t => <KanbanCard key={t.id} task={t} isDoing={false} />)}
-              {todoTasks.length === 0 && (
-                <div className="font-retro" style={{ fontSize: "0.8rem", color: "var(--text-secondary)", textAlign: "center", padding: "8px" }}>
-                  — vazio —
-                </div>
-              )}
+
+            {/* DOING */}
+            <div className="kanban-col" style={{ background: "rgba(0,187,249,0.04)", border: "1px solid rgba(0,187,249,0.15)" }}>
+              <div className="kanban-col-head" style={{ color: "var(--blue)" }}>
+                <span>EM PROGRESSO</span>
+                <span className="kanban-col-count badge badge-blue">{doingTasks.length}</span>
+              </div>
+              <div className="kanban-list">
+                {doingTasks.map(t => <KanbanCard key={t.id} task={t} status="doing" />)}
+                {!doingTasks.length && <div className="kanban-empty" style={{ color: "var(--blue)" }}>— aguardando —</div>}
+              </div>
+            </div>
+
+            {/* DONE */}
+            <div className="kanban-col" style={{ background: "rgba(0,255,102,0.04)", border: "1px solid rgba(0,255,102,0.15)" }}>
+              <div className="kanban-col-head" style={{ color: "var(--green)" }}>
+                <span>CONCLUÍDO</span>
+                <span className="kanban-col-count badge badge-green">{doneTasks.length}</span>
+              </div>
+              <div className="kanban-list">
+                {doneTasks.map(t => <KanbanCard key={t.id} task={t} status="done" />)}
+                {!doneTasks.length && <div className="kanban-empty" style={{ color: "var(--green)" }}>— nenhuma ainda —</div>}
+              </div>
             </div>
           </div>
 
-          {/* DOING */}
-          <div className="kanban-col" style={{ background: "rgba(0,187,249,0.04)", border: "1px solid rgba(0,187,249,0.2)" }}>
-            <div className="kanban-col-header" style={{ color: "var(--accent-blue)" }}>
-              <span>EM PROGRESSO</span>
-              <span className="kanban-col-count badge badge-blue">{doingTasks.length}</span>
+          {/* Terminal log */}
+          <div className="terminal">
+            <div className="terminal-head">
+              <span>🖥 TELEMETRY LOG</span>
+              <span style={{ color: "var(--muted)", fontSize: "0.75rem" }}>
+                [{simActive ? "SIMULATING" : "LIVE"}]
+              </span>
             </div>
-            <div className="kanban-list">
-              {doingTasks.map(t => <KanbanCard key={t.id} task={t} isDoing={true} />)}
-              {doingTasks.length === 0 && (
-                <div className="font-retro" style={{ fontSize: "0.8rem", color: "var(--accent-blue)", textAlign: "center", padding: "8px" }}>
-                  — aguardando —
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* DONE */}
-          <div className="kanban-col" style={{ background: "rgba(0,255,102,0.04)", border: "1px solid rgba(0,255,102,0.2)" }}>
-            <div className="kanban-col-header" style={{ color: "var(--text-retro)" }}>
-              <span>CONCLUÍDO</span>
-              <span className="kanban-col-count badge badge-green">{doneTasks.length}</span>
-            </div>
-            <div className="kanban-list">
-              {doneTasks.map(t => (
-                <div key={t.id} className="kanban-card" style={{ borderLeft: "3px solid var(--text-retro)" }}>
-                  <div style={{ fontSize: "0.78rem", textDecoration: "line-through", color: "var(--text-secondary)" }}>{t.text}</div>
-                  <div className="kanban-card-agent" style={{ color: "var(--text-secondary)" }}>@{t.agent}</div>
+            <div className="terminal-log">
+              {logs.map((log, i) => (
+                <div key={i} style={{ color: logColor(log), fontFamily: "var(--retro)", fontSize: "0.88rem" }}>
+                  {log}
                 </div>
               ))}
-              {doneTasks.length === 0 && (
-                <div className="font-retro" style={{ fontSize: "0.8rem", color: "var(--text-retro)", textAlign: "center", padding: "8px" }}>
-                  — nenhuma ainda —
-                </div>
-              )}
+              <div ref={consoleRef} />
             </div>
           </div>
-        </aside>
+
+          {/* Controls */}
+          <div className="controls">
+            <div>
+              <div className="project-label">PROJETO ATIVO</div>
+              <select
+                className="project-select"
+                value={selected}
+                onChange={e => setSelected(e.target.value)}
+                disabled={simActive}
+              >
+                {projects.map(p => <option key={p} value={p}>{p}</option>)}
+              </select>
+            </div>
+            {!simActive
+              ? <button id="btn-simulate" className="btn-sim btn-start" onClick={startSim}>▶ SIMULAR WORKFLOW</button>
+              : <button id="btn-stop"     className="btn-sim btn-stop"  onClick={stopSim}>⏹ PARAR SIMULAÇÃO</button>
+            }
+          </div>
+        </div>
       </div>
     </div>
   );
