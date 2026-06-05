@@ -36,8 +36,6 @@ function getSpriteStyle(charFile, animate = false) {
     backgroundRepeat: "no-repeat",
     backgroundSize: "112px 96px",
     imageRendering: "pixelated",
-    // KEY: multiply blend mode turns WHITE background transparent on any surface
-    mixBlendMode: "multiply",
   };
 }
 
@@ -52,7 +50,6 @@ function getWalkStyle(charFile) {
     backgroundRepeat: "no-repeat",
     backgroundSize: "112px 96px",
     imageRendering: "pixelated",
-    mixBlendMode: "multiply",
     // CSS animation that cycles through 4 horizontal frames
     animation: "sprite-walk 0.6s steps(4, start) infinite",
     // Start from frame 0 of that row
