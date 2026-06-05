@@ -38,8 +38,6 @@ function getSpriteStyle(charFile, animate = false) {
     imageRendering: "pixelated",
     // KEY: multiply blend mode turns WHITE background transparent on any surface
     mixBlendMode: "multiply",
-    transform: "scale(3.5)",
-    transformOrigin: "bottom center",
   };
 }
 
@@ -55,8 +53,6 @@ function getWalkStyle(charFile) {
     backgroundSize: "112px 96px",
     imageRendering: "pixelated",
     mixBlendMode: "multiply",
-    transform: "scale(3.5)",
-    transformOrigin: "bottom center",
     // CSS animation that cycles through 4 horizontal frames
     animation: "sprite-walk 0.6s steps(4, start) infinite",
     // Start from frame 0 of that row
@@ -72,73 +68,73 @@ function getWalkStyle(charFile) {
 const AGENTS = [
   {
     id: "analyst",        name: "Analyst",     label: "@analyst",  role: "Business & ROI",
-    pos: { x: 70, y: 70 }, charFile: "char_0", color: "#f77f00", // Lounge room
+    col: 13, row: 14, charFile: "char_0", color: "#f77f00", // Lounge room
     bubbles: ["🔍 Analisando ROI...", "📊 Mapeando dores...", "💡 Insights!"],
     dialogTexts: ["Iniciando análise de ROI do projeto...", "Mapeando dores do usuário...", "Relatório de viabilidade concluído!"],
   },
   {
     id: "pm",             name: "PM",          label: "@pm",       role: "Backlog & PRD",
-    pos: { x: 85, y: 70 }, charFile: "char_1", color: "#fee440", // Lounge room
+    col: 16, row: 14, charFile: "char_1", color: "#fee440", // Lounge room
     bubbles: ["📝 PRD...", "✏️ Escrevendo...", "✅ Story!"],
     dialogTexts: ["Refinando backlog com base na análise...", "Escrevendo o PRD do produto...", "Backlog priorizado e documentado!"],
   },
   {
     id: "sm",             name: "Scrum",       label: "@sm",       role: "Sprints & Stories",
-    pos: { x: 65, y: 35 }, charFile: "char_2", color: "#00bbf9", // Breakroom
+    col: 14, row: 5, charFile: "char_2", color: "#00bbf9", // Breakroom
     bubbles: ["📋 Sprint...", "🗓️ Stories...", "✅ Planejado!"],
     dialogTexts: ["Quebrando PRD em stories atômicas...", "Estimando pontos do sprint...", "Sprint configurada no projeto!"],
   },
   {
     id: "architect",      name: "Architect",   label: "@arch",     role: "Tech Design",
-    pos: { x: 80, y: 35 }, charFile: "char_3", color: "#9b5de5", // Breakroom
+    col: 17, row: 5, charFile: "char_3", color: "#9b5de5", // Breakroom
     bubbles: ["📐 Arquitetura...", "🗺️ Mermaid...", "✅ ADR!"],
     dialogTexts: ["Propondo topologia técnica e padrões...", "Gerando diagrama C4 + Mermaid...", "ADR rascunhado para revisão!"],
   },
   {
     id: "ux-design-expert", name: "UX Expert", label: "@ux",      role: "Design System",
-    pos: { x: 25, y: 40 }, charFile: "char_4", color: "#ff0055", // Main office desk 1
+    col: 3, row: 7, charFile: "char_4", color: "#ff0055", // Main office desk 1
     bubbles: ["🎨 Design...", "🖌️ Wireframe...", "✅ Tokens!"],
     dialogTexts: ["Definindo tokens de design para o produto...", "Criando wireframes das telas principais...", "Design system e componentes entregues!"],
   },
   {
     id: "dev",            name: "Developer",   label: "@dev",      role: "Core Code",
-    pos: { x: 45, y: 40 }, charFile: "char_5", color: "#00ff66", // Main office desk 2
+    col: 6, row: 7, charFile: "char_5", color: "#00ff66", // Main office desk 2
     bubbles: ["💻 Codando...", "⌨️ Feature...", "✅ Build!"],
     dialogTexts: ["Executando subtask de implementação...", "Escrevendo código seguindo a spec...", "Feature implementada. Build verde!"],
   },
   {
     id: "prompt-engineer", name: "Prompt Eng.", label: "@prompt", role: "AI Guard",
-    pos: { x: 25, y: 65 }, charFile: "char_0", color: "#00f5d4", // Main office desk 3
+    col: 3, row: 11, charFile: "char_0", color: "#00f5d4", // Main office desk 3
     bubbles: ["🛡️ Prompts...", "🤖 Testing LLM...", "✅ Validado!"],
     dialogTexts: ["Revisando prompts LangGraph e RAG...", "Testando resistência a injection...", "Prompts calibrados e documentados!"],
   },
   {
     id: "security-auditor", name: "SecAudit",  label: "@sec",     role: "Security",
-    pos: { x: 45, y: 65 }, charFile: "char_1", color: "#d62828", // Main office desk 4
+    col: 6, row: 11, charFile: "char_1", color: "#d62828", // Main office desk 4
     bubbles: ["🔐 Auditando...", "🔎 CVEs...", "✅ Zero críticos!"],
     dialogTexts: ["Iniciando auditoria de segurança do código...", "Rodando Snyk scan e checando CVEs...", "Auditoria concluída. Zero itens críticos!"],
   },
   {
     id: "lint-and-validate", name: "Linter",   label: "@lint",    role: "Style & Lint",
-    pos: { x: 25, y: 85 }, charFile: "char_2", color: "#94a3b8", // Main office bottom
+    col: 3, row: 15, charFile: "char_2", color: "#94a3b8", // Main office bottom
     bubbles: ["🧹 Lint...", "✍️ Padrões...", "✅ Zero erros!"],
     dialogTexts: ["Executando ESLint e checagens de padrão...", "Corrigindo formatação e consistência...", "Código padronizado. Zero erros de lint!"],
   },
   {
     id: "doc-coauthoring", name: "DocWriter",  label: "@doc",     role: "Documentation",
-    pos: { x: 45, y: 85 }, charFile: "char_3", color: "#a2d2ff", // Main office bottom
+    col: 6, row: 15, charFile: "char_3", color: "#a2d2ff", // Main office bottom
     bubbles: ["📚 Docs...", "✏️ ADR...", "✅ Publicado!"],
     dialogTexts: ["Documentando enquanto o contexto está vivo...", "Gerando ADR da decisão arquitetural...", "Documentação estruturada e commitada!"],
   },
   {
     id: "qa",             name: "QA Tester",   label: "@qa",      role: "Tests E2E",
-    pos: { x: 35, y: 55 }, charFile: "char_4", color: "#e2e8f0", // Main office middle
+    col: 8, row: 13, charFile: "char_4", color: "#e2e8f0", // Main office middle
     bubbles: ["🧪 Testing...", "🐛 Bug found!", "✅ Spec ok!"],
     dialogTexts: ["Revisando spec vs implementação...", "Rodando testes unitários e E2E...", "Build aprovado. Spec 100% coberta!"],
   },
   {
     id: "devops",         name: "DevOps",      label: "@devops",  role: "CI/CD & Push",
-    pos: { x: 35, y: 75 }, charFile: "char_5", color: "#ffb703", // Main office middle
+    col: 8, row: 9, charFile: "char_5", color: "#ffb703", // Main office middle
     bubbles: ["🚀 Deploying...", "⚙️ CI/CD...", "✅ Push!"],
     dialogTexts: ["Configurando pipeline de CI/CD...", "Executando git push para produção...", "Deploy concluído com sucesso! 🎉"],
   },
@@ -151,10 +147,15 @@ function AgentOnMap({ agent, isActive, onClick }) {
   // Cycle through bubbles while active
   const bubbleIdx = isActive ? Math.floor(Date.now() / 2500) % agent.bubbles.length : 0;
 
+  // The origin of the sprite is bottom center.
+  // We place it roughly in the center of the 16x16 tile.
+  const leftPx = agent.col * 16 + 8; // center of tile x
+  const topPx = agent.row * 16 + 12; // slightly above bottom of tile y
+
   return (
     <div
       className="agent-on-map"
-      style={{ left: `${agent.pos.x}%`, top: `${agent.pos.y}%` }}
+      style={{ left: `${leftPx}px`, top: `${topPx}px`, transition: "all 0.5s linear" }}
       onClick={() => onClick(agent.id)}
       title={`${agent.name} — ${agent.role}`}
     >
@@ -213,6 +214,11 @@ export default function App() {
     "▶ Selecione um projeto ou pressione SIMULAR.",
   ]);
 
+  // Map state
+  const [agentsPos, setAgentsPos] = useState(AGENTS);
+  const mapContainerRef = useRef(null);
+  const [mapScale, setMapScale] = useState(1);
+
   const logRef = useRef(null);
   const addLog = useCallback((msg) => setLogs(p => p[p.length-1]===msg ? p : [...p, msg]), []);
 
@@ -223,6 +229,42 @@ export default function App() {
       .then(d => { setProjects(d); if(d[0]) setSelected(d[0]); })
       .catch(() => addLog("❌ Backend offline. Porta 8124 não encontrada."));
   }, [addLog]);
+
+  /* Resize map scaler */
+  useEffect(() => {
+    const handleResize = () => {
+      if (mapContainerRef.current) {
+        const p = mapContainerRef.current.parentElement;
+        // The pixel-agents map is 21x22 tiles of 16px = 336x352px
+        const sX = p.clientWidth / 336;
+        const sY = p.clientHeight / 352;
+        // Use a multiplier to make it look pixelated but fit well
+        setMapScale(Math.max(1, Math.min(sX, sY) * 0.95)); 
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    // Give it a tiny tick to measure DOM
+    setTimeout(handleResize, 100);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  /* Random walk loop for visual activity */
+  useEffect(() => {
+    const iv = setInterval(() => {
+      setAgentsPos(prev => prev.map(ag => {
+        // Only move agents that are not currently active/doing a task (or give them a chance to pace)
+        if (Math.random() > 0.3) return ag; 
+        // Move randomly -1, 0, or 1 tile
+        const dcol = Math.floor(Math.random() * 3) - 1;
+        const drow = Math.floor(Math.random() * 3) - 1;
+        // Bounds checking (21 cols, 22 rows)
+        const ncol = Math.max(1, Math.min(20, ag.col + dcol));
+        const nrow = Math.max(1, Math.min(21, ag.row + drow));
+        return { ...ag, col: ncol, row: nrow };
+      }));
+    }, 2000);
+    return () => clearInterval(iv);
+  }, []);
 
   /* Load project data */
   const loadData = useCallback((proj) => {
@@ -330,17 +372,19 @@ export default function App() {
         <div style={{ display:"flex", flexDirection:"column", overflow:"hidden", borderRight:"2px solid #1a2240" }}>
 
           {/* OFFICE MAP */}
-          <div style={{ flex:1, position:"relative", overflow:"hidden" }}>
-            {/* Background */}
-            <img src="/office_map_rooms.png" alt="office" style={{ position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover", objectPosition:"top left", imageRendering:"pixelated", filter:"brightness(0.9) saturate(1.1)" }} />
+          <div style={{ flex:1, position:"relative", overflow:"hidden", display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div ref={mapContainerRef} style={{ width: 336, height: 352, position: "relative", transform: `scale(${mapScale})`, imageRendering: "pixelated", transition: "transform 0.2s ease" }}>
+              {/* Background */}
+              <img src="/office_map_rooms.png" alt="office" style={{ position:"absolute", inset:0, width:"100%", height:"100%", imageRendering:"pixelated" }} />
 
-            {/* Scanlines */}
+              {/* AGENTS */}
+              {agentsPos.map(ag => (
+                <AgentOnMap key={ag.id} agent={ag} isActive={activeAgent===ag.id} onClick={handleClick} />
+              ))}
+            </div>
+
+            {/* Scanlines Overlay (full screen) */}
             <div style={{ position:"absolute", inset:0, background:"repeating-linear-gradient(0deg,transparent 0,transparent 2px,rgba(0,0,0,0.06) 2px,rgba(0,0,0,0.06) 4px)", pointerEvents:"none", zIndex:5 }} />
-
-            {/* AGENTS */}
-            {AGENTS.map(ag => (
-              <AgentOnMap key={ag.id} agent={ag} isActive={activeAgent===ag.id} onClick={handleClick} />
-            ))}
           </div>
 
           {/* RPG DIALOG BOX */}
