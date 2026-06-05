@@ -318,8 +318,8 @@ export default function App() {
           { dcol: 0, drow: -1, dir: 3 }
         ];
         const move = moves[Math.floor(Math.random() * moves.length)];
-        const ncol = Math.max(1, Math.min(20, ag.col + move.dcol));
-        const nrow = Math.max(1, Math.min(21, ag.row + move.drow));
+        const ncol = Math.max(1, Math.min(18, ag.col + move.dcol));
+        const nrow = Math.max(10, Math.min(19, ag.row + move.drow));
         return { ...ag, col: ncol, row: nrow, moving: true, dir: move.dir };
       }));
     }, 1000);
