@@ -184,7 +184,7 @@ body {
 /* Spritesheet walk animation */
 @keyframes sprite-walk {
   from { background-position-x: 0px; }
-  to   { background-position-x: -144px; } /* 3 frames * 48px width = 144px */
+  to   { background-position-x: -112px; } /* 4 frames * 28px width = 112px */
 }
 
 /* Idle bob */

@@ -9,15 +9,15 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
    Sheet: approximately 144×192px → each frame: 48×64px
 ────────────────────────────────────────────────────────────── */
 
-// Spritesheet constants (RPG Maker standard for these char sheets)
-const FRAME_COLS = 3;    // 3 walk frames per direction
+// Spritesheet constants (pixel-agents sprites are 112x96 total)
+const FRAME_COLS = 4;    // 4 frames per direction
 const FRAME_ROWS = 4;    // 4 directions
-const STANDING_FRAME = 1; // center frame of row 0 (facing down = towards camera)
+const STANDING_FRAME = 0; // frame 0 is standing facing down
 const FACING_ROW = 0;    // row 0 = facing down (towards viewer)
 
-// Display scale — we render each sprite at this size
-const SPRITE_W = 48;
-const SPRITE_H = 64;
+// Display scale — each frame is exactly 28x24
+const SPRITE_W = 28;
+const SPRITE_H = 24;
 
 // The sprite images are fetched from the pixel-agents repo assets
 // char_0..5 available — we map 12 agents to these 6 sprites (each used twice)
@@ -25,8 +25,6 @@ const CHAR_FILES = ["char_0","char_1","char_2","char_3","char_4","char_5"];
 
 /* Build CSS background-position to extract a single frame */
 function getSpriteStyle(charFile, animate = false) {
-  // We'll use CSS animation steps to walk through frames when active
-  // For idle: show center frame (col 1) of row 0
   const bgX = -(STANDING_FRAME * SPRITE_W);
   const bgY = -(FACING_ROW * SPRITE_H);
 
@@ -36,15 +34,16 @@ function getSpriteStyle(charFile, animate = false) {
     backgroundImage: `url('/${charFile}.png')`,
     backgroundPosition: `${bgX}px ${bgY}px`,
     backgroundRepeat: "no-repeat",
+    backgroundSize: "112px 96px",
     imageRendering: "pixelated",
     // KEY: multiply blend mode turns WHITE background transparent on any surface
     mixBlendMode: "multiply",
-    transform: "scale(2.2)",
+    transform: "scale(2.5)",
     transformOrigin: "bottom center",
   };
 }
 
-/* Build walk animation style (cycles through 3 frames of row 0) */
+/* Build walk animation style (cycles through frames) */
 function getWalkStyle(charFile) {
   const bgY = -(FACING_ROW * SPRITE_H);
   return {
@@ -53,13 +52,13 @@ function getWalkStyle(charFile) {
     backgroundImage: `url('/${charFile}.png')`,
     backgroundPositionY: `${bgY}px`,
     backgroundRepeat: "no-repeat",
+    backgroundSize: "112px 96px",
     imageRendering: "pixelated",
     mixBlendMode: "multiply",
-    transform: "scale(2.2)",
+    transform: "scale(2.5)",
     transformOrigin: "bottom center",
-    // CSS animation that cycles through 3 horizontal frames
-    animation: "sprite-walk 0.4s steps(3, start) infinite",
-    backgroundSize: "auto",
+    // CSS animation that cycles through 4 horizontal frames
+    animation: "sprite-walk 0.6s steps(4, start) infinite",
     // Start from frame 0 of that row
     backgroundPositionX: "0px",
   };
@@ -73,73 +72,73 @@ function getWalkStyle(charFile) {
 const AGENTS = [
   {
     id: "analyst",        name: "Analyst",     label: "@analyst",  role: "Business & ROI",
-    pos: { x: 14, y: 28 }, charFile: "char_0", color: "#f77f00",
+    pos: { x: 22, y: 35 }, charFile: "char_0", color: "#f77f00",
     bubbles: ["🔍 Analisando ROI...", "📊 Mapeando dores...", "💡 Insights!"],
     dialogTexts: ["Iniciando análise de ROI do projeto...", "Mapeando dores do usuário...", "Relatório de viabilidade concluído!"],
   },
   {
     id: "pm",             name: "PM",          label: "@pm",       role: "Backlog & PRD",
-    pos: { x: 27, y: 28 }, charFile: "char_1", color: "#fee440",
+    pos: { x: 38, y: 35 }, charFile: "char_1", color: "#fee440",
     bubbles: ["📝 PRD...", "✏️ Escrevendo...", "✅ Story!"],
     dialogTexts: ["Refinando backlog com base na análise...", "Escrevendo o PRD do produto...", "Backlog priorizado e documentado!"],
   },
   {
     id: "sm",             name: "Scrum",       label: "@sm",       role: "Sprints & Stories",
-    pos: { x: 41, y: 28 }, charFile: "char_2", color: "#00bbf9",
+    pos: { x: 55, y: 35 }, charFile: "char_2", color: "#00bbf9",
     bubbles: ["📋 Sprint...", "🗓️ Stories...", "✅ Planejado!"],
     dialogTexts: ["Quebrando PRD em stories atômicas...", "Estimando pontos do sprint...", "Sprint configurada no projeto!"],
   },
   {
     id: "architect",      name: "Architect",   label: "@arch",     role: "Tech Design",
-    pos: { x: 56, y: 28 }, charFile: "char_3", color: "#9b5de5",
+    pos: { x: 72, y: 35 }, charFile: "char_3", color: "#9b5de5",
     bubbles: ["📐 Arquitetura...", "🗺️ Mermaid...", "✅ ADR!"],
     dialogTexts: ["Propondo topologia técnica e padrões...", "Gerando diagrama C4 + Mermaid...", "ADR rascunhado para revisão!"],
   },
   {
     id: "ux-design-expert", name: "UX Expert", label: "@ux",      role: "Design System",
-    pos: { x: 70, y: 28 }, charFile: "char_4", color: "#ff0055",
+    pos: { x: 85, y: 35 }, charFile: "char_4", color: "#ff0055",
     bubbles: ["🎨 Design...", "🖌️ Wireframe...", "✅ Tokens!"],
     dialogTexts: ["Definindo tokens de design para o produto...", "Criando wireframes das telas principais...", "Design system e componentes entregues!"],
   },
   {
     id: "dev",            name: "Developer",   label: "@dev",      role: "Core Code",
-    pos: { x: 14, y: 58 }, charFile: "char_5", color: "#00ff66",
+    pos: { x: 18, y: 65 }, charFile: "char_5", color: "#00ff66",
     bubbles: ["💻 Codando...", "⌨️ Feature...", "✅ Build!"],
     dialogTexts: ["Executando subtask de implementação...", "Escrevendo código seguindo a spec...", "Feature implementada. Build verde!"],
   },
   {
     id: "prompt-engineer", name: "Prompt Eng.", label: "@prompt", role: "AI Guard",
-    pos: { x: 26, y: 58 }, charFile: "char_0", color: "#00f5d4",
+    pos: { x: 28, y: 75 }, charFile: "char_0", color: "#00f5d4",
     bubbles: ["🛡️ Prompts...", "🤖 Testing LLM...", "✅ Validado!"],
     dialogTexts: ["Revisando prompts LangGraph e RAG...", "Testando resistência a injection...", "Prompts calibrados e documentados!"],
   },
   {
     id: "security-auditor", name: "SecAudit",  label: "@sec",     role: "Security",
-    pos: { x: 38, y: 58 }, charFile: "char_1", color: "#d62828",
+    pos: { x: 42, y: 65 }, charFile: "char_1", color: "#d62828",
     bubbles: ["🔐 Auditando...", "🔎 CVEs...", "✅ Zero críticos!"],
     dialogTexts: ["Iniciando auditoria de segurança do código...", "Rodando Snyk scan e checando CVEs...", "Auditoria concluída. Zero itens críticos!"],
   },
   {
     id: "lint-and-validate", name: "Linter",   label: "@lint",    role: "Style & Lint",
-    pos: { x: 50, y: 58 }, charFile: "char_2", color: "#94a3b8",
+    pos: { x: 52, y: 75 }, charFile: "char_2", color: "#94a3b8",
     bubbles: ["🧹 Lint...", "✍️ Padrões...", "✅ Zero erros!"],
     dialogTexts: ["Executando ESLint e checagens de padrão...", "Corrigindo formatação e consistência...", "Código padronizado. Zero erros de lint!"],
   },
   {
     id: "doc-coauthoring", name: "DocWriter",  label: "@doc",     role: "Documentation",
-    pos: { x: 61, y: 58 }, charFile: "char_3", color: "#a2d2ff",
+    pos: { x: 65, y: 65 }, charFile: "char_3", color: "#a2d2ff",
     bubbles: ["📚 Docs...", "✏️ ADR...", "✅ Publicado!"],
     dialogTexts: ["Documentando enquanto o contexto está vivo...", "Gerando ADR da decisão arquitetural...", "Documentação estruturada e commitada!"],
   },
   {
     id: "qa",             name: "QA Tester",   label: "@qa",      role: "Tests E2E",
-    pos: { x: 71, y: 58 }, charFile: "char_4", color: "#e2e8f0",
+    pos: { x: 75, y: 75 }, charFile: "char_4", color: "#e2e8f0",
     bubbles: ["🧪 Testing...", "🐛 Bug found!", "✅ Spec ok!"],
     dialogTexts: ["Revisando spec vs implementação...", "Rodando testes unitários e E2E...", "Build aprovado. Spec 100% coberta!"],
   },
   {
     id: "devops",         name: "DevOps",      label: "@devops",  role: "CI/CD & Push",
-    pos: { x: 82, y: 58 }, charFile: "char_5", color: "#ffb703",
+    pos: { x: 88, y: 65 }, charFile: "char_5", color: "#ffb703",
     bubbles: ["🚀 Deploying...", "⚙️ CI/CD...", "✅ Push!"],
     dialogTexts: ["Configurando pipeline de CI/CD...", "Executando git push para produção...", "Deploy concluído com sucesso! 🎉"],
   },
