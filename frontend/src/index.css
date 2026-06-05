@@ -130,31 +130,45 @@ body {
   align-items: center;
   cursor: pointer;
   z-index: 10;
-  /* use isolation to confine blend mode to this stacking context */
   isolation: auto;
 }
-.agent-on-map:hover .agent-sprite-wrap {
+.agent-on-map:hover .sprite-wrap {
   filter: brightness(1.15) drop-shadow(0 0 6px rgba(255,255,255,0.4));
 }
 
-.agent-sprite-img {
-  width: 48px;
-  height: 64px;
-  image-rendering: pixelated;
-  object-fit: none; /* use as spritesheet */
+.sprite-wrap {
+  position: relative;
 }
 
-.agent-sprite-wrap {
-  position: relative;
-  /* shadow under feet for depth */
-  filter: drop-shadow(0 4px 3px rgba(0,0,0,0.6));
+/* Shadow under feet for depth */
+.sprite-shadow {
+  position: absolute;
+  bottom: 12px;
+  width: 24px;
+  height: 6px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 50%;
+  filter: blur(2px);
+  z-index: 0;
+}
+
+/* Glow behind active sprite */
+.sprite-glow {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  z-index: -1;
+  animation: glow-pulse 1.5s infinite ease-in-out;
+}
+@keyframes glow-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50%       { transform: scale(1.1); opacity: 1; }
 }
 
 /* Name tag under sprite */
-.agent-name-tag {
+.agent-tag {
   font-family: var(--retro);
   font-size: 0.65rem;
-  color: rgba(255,255,255,0.85);
   background: rgba(0,0,0,0.55);
   padding: 1px 5px;
   white-space: nowrap;
@@ -163,24 +177,14 @@ body {
   letter-spacing: 0.5px;
   border-bottom: 1px solid rgba(255,255,255,0.1);
 }
-.agent-name-tag.active-tag {
-  color: var(--cyan);
+.agent-tag.tag-active {
   background: rgba(0,0,0,0.75);
-  text-shadow: 0 0 6px var(--cyan);
-  border-bottom-color: var(--cyan);
 }
 
-/* Selection ring when active */
-.agent-ring {
-  position: absolute;
-  inset: -4px;
-  border: 2px solid var(--cyan);
-  animation: ring-pulse 1s infinite ease-in-out;
-  z-index: -1;
-}
-@keyframes ring-pulse {
-  0%, 100% { box-shadow: 0 0 4px var(--cyan); opacity: 0.7; }
-  50%       { box-shadow: 0 0 14px var(--cyan); opacity: 1; }
+/* Spritesheet walk animation */
+@keyframes sprite-walk {
+  from { background-position-x: 0px; }
+  to   { background-position-x: -144px; } /* 3 frames * 48px width = 144px */
 }
 
 /* Idle bob */
