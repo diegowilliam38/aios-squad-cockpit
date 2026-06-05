@@ -68,73 +68,73 @@ function getWalkStyle(charFile) {
 const AGENTS = [
   {
     id: "analyst",        name: "Analyst",     label: "@analyst",  role: "Business & ROI",
-    col: 13, row: 14, charFile: "char_0", color: "#f77f00", // Lounge room
+    col: 14, row: 17, charFile: "char_0", color: "#f77f00", // Lounge room
     bubbles: ["🔍 Analisando ROI...", "📊 Mapeando dores...", "💡 Insights!"],
     dialogTexts: ["Iniciando análise de ROI do projeto...", "Mapeando dores do usuário...", "Relatório de viabilidade concluído!"],
   },
   {
     id: "pm",             name: "PM",          label: "@pm",       role: "Backlog & PRD",
-    col: 16, row: 14, charFile: "char_1", color: "#fee440", // Lounge room
+    col: 17, row: 15, charFile: "char_1", color: "#fee440", // Lounge room
     bubbles: ["📝 PRD...", "✏️ Escrevendo...", "✅ Story!"],
     dialogTexts: ["Refinando backlog com base na análise...", "Escrevendo o PRD do produto...", "Backlog priorizado e documentado!"],
   },
   {
     id: "sm",             name: "Scrum",       label: "@sm",       role: "Sprints & Stories",
-    col: 14, row: 5, charFile: "char_2", color: "#00bbf9", // Breakroom
+    col: 14, row: 11, charFile: "char_2", color: "#00bbf9", // Breakroom
     bubbles: ["📋 Sprint...", "🗓️ Stories...", "✅ Planejado!"],
     dialogTexts: ["Quebrando PRD em stories atômicas...", "Estimando pontos do sprint...", "Sprint configurada no projeto!"],
   },
   {
     id: "architect",      name: "Architect",   label: "@arch",     role: "Tech Design",
-    col: 17, row: 5, charFile: "char_3", color: "#9b5de5", // Breakroom
+    col: 17, row: 11, charFile: "char_3", color: "#9b5de5", // Breakroom
     bubbles: ["📐 Arquitetura...", "🗺️ Mermaid...", "✅ ADR!"],
     dialogTexts: ["Propondo topologia técnica e padrões...", "Gerando diagrama C4 + Mermaid...", "ADR rascunhado para revisão!"],
   },
   {
     id: "ux-design-expert", name: "UX Expert", label: "@ux",      role: "Design System",
-    col: 3, row: 7, charFile: "char_4", color: "#ff0055", // Main office desk 1
+    col: 3, row: 12, charFile: "char_4", color: "#ff0055", // Main office desk 1
     bubbles: ["🎨 Design...", "🖌️ Wireframe...", "✅ Tokens!"],
     dialogTexts: ["Definindo tokens de design para o produto...", "Criando wireframes das telas principais...", "Design system e componentes entregues!"],
   },
   {
     id: "dev",            name: "Developer",   label: "@dev",      role: "Core Code",
-    col: 6, row: 7, charFile: "char_5", color: "#00ff66", // Main office desk 2
+    col: 7, row: 12, charFile: "char_5", color: "#00ff66", // Main office desk 2
     bubbles: ["💻 Codando...", "⌨️ Feature...", "✅ Build!"],
     dialogTexts: ["Executando subtask de implementação...", "Escrevendo código seguindo a spec...", "Feature implementada. Build verde!"],
   },
   {
     id: "prompt-engineer", name: "Prompt Eng.", label: "@prompt", role: "AI Guard",
-    col: 3, row: 11, charFile: "char_0", color: "#00f5d4", // Main office desk 3
+    col: 3, row: 15, charFile: "char_0", color: "#00f5d4", // Main office desk 3
     bubbles: ["🛡️ Prompts...", "🤖 Testing LLM...", "✅ Validado!"],
     dialogTexts: ["Revisando prompts LangGraph e RAG...", "Testando resistência a injection...", "Prompts calibrados e documentados!"],
   },
   {
     id: "security-auditor", name: "SecAudit",  label: "@sec",     role: "Security",
-    col: 6, row: 11, charFile: "char_1", color: "#d62828", // Main office desk 4
+    col: 7, row: 15, charFile: "char_1", color: "#d62828", // Main office desk 4
     bubbles: ["🔐 Auditando...", "🔎 CVEs...", "✅ Zero críticos!"],
     dialogTexts: ["Iniciando auditoria de segurança do código...", "Rodando Snyk scan e checando CVEs...", "Auditoria concluída. Zero itens críticos!"],
   },
   {
     id: "lint-and-validate", name: "Linter",   label: "@lint",    role: "Style & Lint",
-    col: 3, row: 15, charFile: "char_2", color: "#94a3b8", // Main office bottom
+    col: 3, row: 18, charFile: "char_2", color: "#94a3b8", // Main office bottom
     bubbles: ["🧹 Lint...", "✍️ Padrões...", "✅ Zero erros!"],
     dialogTexts: ["Executando ESLint e checagens de padrão...", "Corrigindo formatação e consistência...", "Código padronizado. Zero erros de lint!"],
   },
   {
     id: "doc-coauthoring", name: "DocWriter",  label: "@doc",     role: "Documentation",
-    col: 6, row: 15, charFile: "char_3", color: "#a2d2ff", // Main office bottom
+    col: 7, row: 18, charFile: "char_3", color: "#a2d2ff", // Main office bottom
     bubbles: ["📚 Docs...", "✏️ ADR...", "✅ Publicado!"],
     dialogTexts: ["Documentando enquanto o contexto está vivo...", "Gerando ADR da decisão arquitetural...", "Documentação estruturada e commitada!"],
   },
   {
     id: "qa",             name: "QA Tester",   label: "@qa",      role: "Tests E2E",
-    col: 8, row: 13, charFile: "char_4", color: "#e2e8f0", // Main office middle
+    col: 9, row: 14, charFile: "char_4", color: "#e2e8f0", // Main office middle
     bubbles: ["🧪 Testing...", "🐛 Bug found!", "✅ Spec ok!"],
     dialogTexts: ["Revisando spec vs implementação...", "Rodando testes unitários e E2E...", "Build aprovado. Spec 100% coberta!"],
   },
   {
     id: "devops",         name: "DevOps",      label: "@devops",  role: "CI/CD & Push",
-    col: 8, row: 9, charFile: "char_5", color: "#ffb703", // Main office middle
+    col: 9, row: 16, charFile: "char_5", color: "#ffb703", // Main office middle
     bubbles: ["🚀 Deploying...", "⚙️ CI/CD...", "✅ Push!"],
     dialogTexts: ["Configurando pipeline de CI/CD...", "Executando git push para produção...", "Deploy concluído com sucesso! 🎉"],
   },
