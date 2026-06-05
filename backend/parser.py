@@ -64,12 +64,21 @@ def parse_project_tasks(project_name):
     # Status group matches space, / or x (case-insensitive)
     task_regex = re.compile(r'^\s*[-*]\s*(?:`|code)?\[([\s/xX])\](?:`|code)?\s*(.*)$')
     
-    # List of known agents to scan inside tasks
-    agents = [
-        "analyst", "pm", "sm", "architect", "ux-design-expert", "dev", 
-        "prompt-engineer", "security-auditor", "lint-and-validate", 
-        "doc-coauthoring", "qa", "devops"
-    ]
+    # Mapping of explicit short tags to agent IDs
+    agent_tag_map = {
+        "@analyst": "analyst",
+        "@pm": "pm",
+        "@sm": "sm",
+        "@arch": "architect",
+        "@ux": "ux-design-expert",
+        "@dev": "dev",
+        "@prompt": "prompt-engineer",
+        "@sec": "security-auditor",
+        "@lint": "lint-and-validate",
+        "@doc": "doc-coauthoring",
+        "@qa": "qa",
+        "@devops": "devops"
+    }
     
     try:
         with open(task_path, "r", encoding="utf-8") as f:
@@ -95,11 +104,18 @@ def parse_project_tasks(project_name):
                 assigned_agent = None
                 desc_lower = description.lower()
                 
-                # Check for explicit mentions like @dev or dev in description
-                for agent in agents:
-                    if f"@{agent}" in desc_lower or agent in desc_lower:
-                        assigned_agent = agent
+                # Check for explicit short tags first
+                for tag, agent_id in agent_tag_map.items():
+                    if tag in desc_lower:
+                        assigned_agent = agent_id
                         break
+                        
+                # If no tag found, try matching the full ID just in case
+                if not assigned_agent:
+                    for agent_id in agent_tag_map.values():
+                        if agent_id in desc_lower:
+                            assigned_agent = agent_id
+                            break
                         
                 # Default mapping based on common phase keywords if not found
                 if not assigned_agent:
