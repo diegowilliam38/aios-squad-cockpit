@@ -91,4 +91,29 @@ aios-squad-cockpit/
 
 ---
 
+## 🕹️ CSS Sprite Engine & Background Map (Referência de Arquitetura)
+
+Este projeto foi desenhado para ser um **baseline** para futuros painéis visuais no ecossistema AIOS. Para evitar débito técnico ao clonar esta arquitetura, siga estritamente estas regras visuais:
+
+### 1. Sprite Math (16x32px)
+Os sprites (`char_0.png` a `char_5.png`) do Pixel Agents possuem exatos **112x96 pixels** de tamanho. 
+- A largura de cada quadro (frame) é **16px** (`112 / 7 colunas = 16px`).
+- A altura de cada quadro é **32px** (`96 / 3 linhas = 32px`).
+- Se você usar `24px` de altura, a cabeça ou os pés dos agentes serão cortados horizontalmente (Guilhotina Visual).
+
+### 2. Matriz de Direção (3 Linhas)
+A maioria dos motores possui 4 linhas (Down, Left, Right, Up). Este motor otimizado possui apenas **3 linhas**:
+- Linha 0 (Y=0): Caminhando para **Baixo**
+- Linha 1 (Y=-32px): Caminhando para a **Direita**
+- Linha 2 (Y=-64px): Caminhando para **Cima**
+
+**Como fazer o agente andar para a Esquerda?**
+Reutilize a Linha 1 (Direita) e aplique `transform: scaleX(-1)` no CSS da div do sprite.
+
+### 3. Background Map Assado (Baked Map)
+O mapa de tiles (chão, paredes, mesas, pcs) NÃO é re-renderizado via loop React. Ele é pré-renderizado em uma única imagem PNG gigante (`public/office_map_rooms.png`) gerada por um script Python no momento do build. Os agentes são apenas divs flutuando sobre esta imagem com `position: absolute`. Isso garante 60FPS em navegadores simples.
+*Lembrete de Z-Index: Os agentes sempre serão desenhados sobre as mesas, por isso evite que os agentes caminhem diretamente "atrás" de móveis altos.*
+
+---
+
 *Projeto independente do ecossistema AIOS-WORKSPACE. Vive em `projects/aios-squad-cockpit/`.*
