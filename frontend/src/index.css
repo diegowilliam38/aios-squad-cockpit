@@ -1,160 +1,618 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=VT323&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap');
 
+/* ─── DESIGN TOKENS ─────────────────────────────────────── */
 :root {
-  --bg-primary: #060814;
-  --bg-secondary: #0b0e20;
-  --bg-card: rgba(15, 20, 42, 0.7);
-  --border-color: #1a223f;
-  
-  --text-primary: #e2e8f0;
+  --bg-primary:    #060814;
+  --bg-secondary:  #0b0e20;
+  --bg-card:       rgba(15, 20, 42, 0.7);
+  --border-color:  #1a223f;
+
+  --text-primary:   #e2e8f0;
   --text-secondary: #94a3b8;
-  --text-retro: #00ff66; /* Neon green terminal */
-  
-  --accent-cyan: #00f5d4;
-  --accent-blue: #00bbf9;
+  --text-retro:     #00ff66;
+
+  --accent-cyan:   #00f5d4;
+  --accent-blue:   #00bbf9;
   --accent-purple: #9b5de5;
   --accent-orange: #f77f00;
-  --accent-red: #ff0055;
+  --accent-red:    #ff0055;
   --accent-yellow: #fee440;
-  
-  --pixel-size: 4px;
+
+  /* Pixel unit — scale all sprites from here */
+  --px: 3px;
+
+  /* Office palette */
+  --floor-1: #1c1f3a;
+  --floor-2: #161828;
+  --wall:    #0e1020;
+  --wall-hi: #252a4a;
+  --desk:    #2e3555;
+  --desk-hi: #3d4470;
+  --win-frame: #1a2045;
+  --win-glass: rgba(100, 180, 255, 0.08);
 }
 
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* ─── RESET ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: 'Outfit', sans-serif;
+  font-family: 'VT323', monospace;
   overflow-x: hidden;
-  background-image: 
-    radial-gradient(circle at 10% 20%, rgba(15, 20, 50, 0.4) 0%, transparent 40%),
-    radial-gradient(circle at 90% 80%, rgba(30, 10, 60, 0.3) 0%, transparent 45%);
+  image-rendering: pixelated;
+  background-image:
+    radial-gradient(circle at 15% 25%, rgba(15,20,50,0.5) 0%, transparent 45%),
+    radial-gradient(circle at 85% 75%, rgba(30,10,60,0.4) 0%, transparent 50%);
   background-attachment: fixed;
 }
 
-/* Scrollbar Customization */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-::-webkit-scrollbar-track {
-  background: var(--bg-primary);
-}
-::-webkit-scrollbar-thumb {
-  background: var(--border-color);
-  border-radius: 4px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-blue);
-}
+/* ─── SCROLLBARS ─────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 0; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
 
-/* CRT Screen Effect for Retro Console */
-.crt-overlay {
-  position: relative;
-  overflow: hidden;
-}
+/* ─── TYPOGRAPHY ─────────────────────────────────────────── */
+.font-retro  { font-family: 'VT323', monospace; }
+.font-pixel  { font-family: 'Press Start 2P', monospace; font-size: 0.55rem; line-height: 1.8; }
+
+/* ─── CRT EFFECT ─────────────────────────────────────────── */
+.crt-overlay { position: relative; overflow: hidden; }
 .crt-overlay::before {
   content: " ";
   display: block;
-  position: absolute;
-  top: 0; left: 0; bottom: 0; right: 0;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(rgba(18,16,16,0) 50%, rgba(0,0,0,0.18) 50%),
+    linear-gradient(90deg, rgba(255,0,0,0.04), rgba(0,255,0,0.015), rgba(0,0,255,0.04));
+  background-size: 100% 3px, 5px 100%;
   z-index: 2;
-  background-size: 100% 3px, 6px 100%;
   pointer-events: none;
 }
 
-/* Keyframes for animations */
-
-/* Breathing Idle animation */
-@keyframes pixel-idle {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-3px);
-  }
+/* ─── BUILDING SHELL ─────────────────────────────────────── */
+.office-building {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 4px solid var(--wall-hi);
+  border-radius: 0;
+  overflow: hidden;
+  image-rendering: pixelated;
+  box-shadow: 0 0 0 2px #080b1a, 0 0 40px rgba(0,0,0,0.8);
 }
 
-/* Typing action shaking animation */
-@keyframes pixel-typing {
-  0%, 100% {
-    transform: translate(0, 0) rotate(0deg);
-  }
-  25% {
-    transform: translate(-1px, 1px) rotate(-1deg);
-  }
-  50% {
-    transform: translate(1px, -1px) rotate(1deg);
-  }
-  75% {
-    transform: translate(-1px, -1px) rotate(0deg);
-  }
+/* ─── FLOOR ──────────────────────────────────────────────── */
+.office-floor {
+  display: flex;
+  align-items: flex-end;
+  gap: 0;
+  padding: 10px 8px 0;
+  min-height: 160px;
+  border-bottom: 4px solid var(--wall-hi);
+  position: relative;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      var(--floor-1) 0px,
+      var(--floor-1) calc(var(--px) * 8),
+      var(--floor-2) calc(var(--px) * 8),
+      var(--floor-2) calc(var(--px) * 16)
+    );
 }
 
-/* Speech bubble float animation */
-@keyframes bubble-float {
-  0%, 100% {
-    transform: translateY(0) translateX(-50%);
-  }
-  50% {
-    transform: translateY(-4px) translateX(-50%);
-  }
-}
-
-/* Neon Glow Pulse */
-@keyframes neon-glow {
-  0%, 100% {
-    box-shadow: 0 0 5px rgba(0, 245, 212, 0.2), 0 0 10px rgba(0, 245, 212, 0.1);
-    border-color: rgba(0, 245, 212, 0.4);
-  }
-  50% {
-    box-shadow: 0 0 15px rgba(0, 245, 212, 0.6), 0 0 30px rgba(0, 245, 212, 0.3);
-    border-color: rgba(0, 245, 212, 1);
-  }
-}
-
-/* Blinking Server lights */
-@keyframes blink-light {
-  0%, 100% {
-    opacity: 0.3;
-  }
-  50% {
-    opacity: 1;
-  }
-}
-
-/* Spark particle emission */
-@keyframes spark-fly {
-  0% {
-    transform: translate(0, 0) scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: translate(var(--x, 15px), var(--y, -25px)) scale(0);
-    opacity: 0;
-  }
-}
-
-/* Retro styles */
-.font-retro {
+.floor-label {
+  position: absolute;
+  top: 6px; left: 10px;
   font-family: 'VT323', monospace;
-  font-size: 1.15rem;
+  font-size: 0.75rem;
+  color: var(--wall-hi);
+  letter-spacing: 2px;
+  user-select: none;
 }
 
-/* Pixel Border Utility */
-.pixel-border {
-  border: 4px solid #fff;
-  border-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3e%3cpath d='M0 0h12v12H0z' fill='none'/%3e%3cpath d='M4 0h4v4H4zm0 8h4v4H4zM0 4h4v4H0zm8 0h4v4H8z' fill='%231a223f'/%3e%3c/svg%3e") 4 repeat;
+/* Windows on back wall */
+.office-floor::before {
+  content: '';
+  position: absolute;
+  top: 8px; left: 0; right: 0;
+  height: 45px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      transparent 0px,
+      transparent 30px,
+      var(--win-frame) 30px,
+      var(--win-frame) 34px,
+      var(--win-glass) 34px,
+      var(--win-glass) 80px,
+      var(--win-frame) 80px,
+      var(--win-frame) 84px,
+      transparent 84px,
+      transparent 100px
+    );
+  pointer-events: none;
+  border-top: 3px solid var(--win-frame);
+  border-bottom: 3px solid var(--win-frame);
 }
 
-.pixel-border-active {
-  border: 4px solid #fff;
-  border-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'%3e%3cpath d='M0 0h12v12H0z' fill='none'/%3e%3cpath d='M4 0h4v4H4zm0 8h4v4H4zM0 4h4v4H0zm8 0h4v4H8z' fill='%2300f5d4'/%3e%3c/svg%3e") 4 repeat;
+/* ─── DESK + WORKSTATION ─────────────────────────────────── */
+.workstation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  position: relative;
+  flex-shrink: 0;
+  width: 64px;
+  cursor: pointer;
+  transition: filter 0.2s;
+}
+.workstation:hover { filter: brightness(1.15); }
+
+/* Monitor */
+.monitor {
+  width: calc(var(--px) * 10);
+  height: calc(var(--px) * 8);
+  background: #111827;
+  border: calc(var(--px) * 1) solid #374151;
+  position: relative;
+  image-rendering: pixelated;
+  flex-shrink: 0;
+}
+.monitor::before {  /* screen glow */
+  content: '';
+  position: absolute; inset: 2px;
+  background: #030810;
+  transition: background 0.3s;
+}
+.monitor.active::before {
+  background: radial-gradient(ellipse at center, rgba(0,187,249,0.3) 0%, rgba(0,30,60,0.8) 100%);
+  animation: screen-flicker 3s infinite;
+}
+.monitor::after {  /* stand */
+  content: '';
+  position: absolute;
+  bottom: calc(var(--px) * -2);
+  left: 50%; transform: translateX(-50%);
+  width: calc(var(--px) * 3);
+  height: calc(var(--px) * 2);
+  background: #374151;
+}
+
+/* Desk surface */
+.desk-surface {
+  width: calc(var(--px) * 16);
+  height: calc(var(--px) * 4);
+  background: var(--desk);
+  border-top: calc(var(--px) * 1) solid var(--desk-hi);
+  border-left: calc(var(--px) * 1) solid var(--desk-hi);
+  border-right: calc(var(--px) * 1) solid #1a2035;
+  position: relative;
+}
+/* Desk legs */
+.desk-surface::after {
+  content: '';
+  position: absolute;
+  bottom: calc(var(--px) * -3);
+  left: calc(var(--px) * 1);
+  right: calc(var(--px) * 1);
+  height: calc(var(--px) * 3);
+  background: linear-gradient(to right,
+    #1a2035 0, #1a2035 calc(var(--px)*2),
+    transparent calc(var(--px)*2),
+    transparent calc(100% - var(--px)*2),
+    #1a2035 calc(100% - var(--px)*2), #1a2035 100%
+  );
+}
+
+/* LED indicator dot on desk */
+.desk-led {
+  position: absolute;
+  top: calc(var(--px) * 1);
+  right: calc(var(--px) * 2);
+  width: calc(var(--px) * 1.5);
+  height: calc(var(--px) * 1.5);
+  border-radius: 50%;
+  background: #334155;
+  transition: background 0.3s;
+}
+.desk-led.active-led {
+  background: var(--accent-cyan);
+  box-shadow: 0 0 6px var(--accent-cyan);
+  animation: blink-light 1.2s infinite;
+}
+
+/* Agent name tag */
+.agent-tag {
+  font-family: 'VT323', monospace;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  text-align: center;
+  margin-top: calc(var(--px) * 4);
+  line-height: 1.1;
+  white-space: nowrap;
+  transition: color 0.3s;
+}
+.agent-tag.active-tag { color: var(--accent-cyan); }
+
+/* ─── PIXEL ART SPRITE ───────────────────────────────────── */
+/* Sprites rendered purely via CSS box-shadow pixel grid */
+/* Each .sprite-pixel is 1px, scaled via transform */
+
+.pixel-character {
+  position: relative;
+  width: calc(var(--px) * 8);
+  height: calc(var(--px) * 16);
+  margin-bottom: calc(var(--px) * 1);
+  flex-shrink: 0;
+  image-rendering: pixelated;
+  transition: transform 0.3s;
+}
+
+/* Head: 6×5 pixels centered at top */
+.sprite-head {
+  position: absolute;
+  top: 0;
+  left: calc(var(--px) * 1);
+  width: calc(var(--px) * 6);
+  height: calc(var(--px) * 5);
+  /* background set inline by skin color */
+}
+
+/* Eyes: two 1×1 dots */
+.sprite-eye-l,
+.sprite-eye-r {
+  position: absolute;
+  top: calc(var(--px) * 2);
+  width: calc(var(--px) * 1);
+  height: calc(var(--px) * 1);
+  background: #0f172a;
+}
+.sprite-eye-l { left: calc(var(--px) * 1); }
+.sprite-eye-r { right: calc(var(--px) * 1); }
+
+/* Body: 6×6 pixels */
+.sprite-body {
+  position: absolute;
+  top: calc(var(--px) * 6);
+  left: calc(var(--px) * 1);
+  width: calc(var(--px) * 6);
+  height: calc(var(--px) * 6);
+}
+
+/* Arms: each 2×4 */
+.sprite-arm-l,
+.sprite-arm-r {
+  position: absolute;
+  top: calc(var(--px) * 6);
+  width: calc(var(--px) * 2);
+  height: calc(var(--px) * 5);
+  /* background = body color */
+  transform-origin: top center;
+}
+.sprite-arm-l { left: calc(var(--px) * -1); }
+.sprite-arm-r { right: calc(var(--px) * -1); }
+
+/* Legs: each 2×5 */
+.sprite-leg-l,
+.sprite-leg-r {
+  position: absolute;
+  bottom: 0;
+  width: calc(var(--px) * 3);
+  height: calc(var(--px) * 5);
+  /* background = pants color */
+}
+.sprite-leg-l { left: calc(var(--px) * 1); }
+.sprite-leg-r { right: calc(var(--px) * 1); }
+
+/* ─── SPRITE ANIMATIONS ─────────────────────────────────── */
+/* Idle: gentle up-down breathing */
+@keyframes sprite-idle {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(calc(var(--px) * -1)); }
+}
+
+/* Typing: rapid subtle shake */
+@keyframes sprite-typing {
+  0%, 100% { transform: translateY(-1px) rotate(0deg); }
+  25%       { transform: translateY(-2px) rotate(-1.5deg); }
+  75%       { transform: translateY(0px) rotate(1.5deg); }
+}
+
+/* Arm swing (for walking) */
+@keyframes arm-swing-l {
+  0%, 100% { transform: rotate(-25deg); }
+  50%       { transform: rotate(25deg); }
+}
+@keyframes arm-swing-r {
+  0%, 100% { transform: rotate(25deg); }
+  50%       { transform: rotate(-25deg); }
+}
+
+/* Leg walk */
+@keyframes leg-walk-l {
+  0%, 100% { transform: translateX(0); }
+  50%       { transform: translateX(calc(var(--px) * 1)); }
+}
+@keyframes leg-walk-r {
+  0%, 100% { transform: translateX(0); }
+  50%       { transform: translateX(calc(var(--px) * -1)); }
+}
+
+/* Jump/celebrate */
+@keyframes sprite-jump {
+  0%   { transform: translateY(0) scaleY(1); }
+  30%  { transform: translateY(calc(var(--px) * -5)) scaleY(1.1); }
+  55%  { transform: translateY(calc(var(--px) * -3)) scaleY(1); }
+  75%  { transform: translateY(calc(var(--px) * -6)) scaleY(1.1); }
+  100% { transform: translateY(0) scaleY(1); }
+}
+
+/* States applied to .pixel-character */
+.pixel-character.state-idle   { animation: sprite-idle 2.4s ease-in-out infinite; }
+.pixel-character.state-working { animation: sprite-typing 0.18s linear infinite; }
+.pixel-character.state-done   { animation: sprite-jump 0.6s ease-out 1; }
+
+.pixel-character.state-working .sprite-arm-l { animation: arm-swing-l 0.2s linear infinite; }
+.pixel-character.state-working .sprite-arm-r { animation: arm-swing-r 0.2s linear infinite; }
+
+/* ─── SPEECH BUBBLE (pixel art style) ────────────────────── */
+.speech-bubble {
+  position: absolute;
+  bottom: calc(100% + calc(var(--px) * 2));
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  color: #000;
+  font-family: 'VT323', monospace;
+  font-size: 0.75rem;
+  padding: 3px 7px;
+  white-space: nowrap;
+  z-index: 20;
+  image-rendering: pixelated;
+  /* Pixel-art border: stepwise corners */
+  border: 2px solid #000;
+  clip-path: polygon(
+    4px 0%, calc(100% - 4px) 0%,
+    100% 4px, 100% calc(100% - 4px),
+    calc(100% - 4px) 100%, calc(50% + 6px) 100%,
+    50% calc(100% + 8px), calc(50% - 6px) 100%,
+    4px 100%, 0% calc(100% - 4px),
+    0% 4px
+  );
+  animation: bubble-float 1.8s ease-in-out infinite;
+}
+
+@keyframes bubble-float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(-4px); }
+}
+
+/* ─── PLANTS & DECORATION ────────────────────────────────── */
+.office-plant {
+  width: calc(var(--px) * 6);
+  height: calc(var(--px) * 10);
+  position: relative;
+  flex-shrink: 0;
+  margin: 0 4px;
+}
+.office-plant::before {  /* pot */
+  content: '';
+  position: absolute;
+  bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--px) * 4);
+  height: calc(var(--px) * 3);
+  background: #7c3f1e;
+  border-top: calc(var(--px)*1) solid #a0522d;
+}
+.office-plant::after { /* leaves */
+  content: '';
+  position: absolute;
+  bottom: calc(var(--px) * 3); left: 50%;
+  transform: translateX(-50%);
+  width: calc(var(--px) * 6);
+  height: calc(var(--px) * 7);
+  background: radial-gradient(ellipse at 40% 60%, #15803d, #14532d);
+  clip-path: polygon(50% 0%, 80% 30%, 100% 60%, 70% 100%, 30% 100%, 0% 60%, 20% 30%);
+}
+
+/* ─── NEON GLOW PULSE ─────────────────────────────────────── */
+@keyframes neon-glow {
+  0%, 100% { box-shadow: 0 0 4px rgba(0,245,212,0.2), 0 0 8px rgba(0,245,212,0.1); }
+  50%       { box-shadow: 0 0 14px rgba(0,245,212,0.7), 0 0 28px rgba(0,245,212,0.3); }
+}
+
+@keyframes screen-flicker {
+  0%, 97%, 100% { opacity: 1; }
+  98%           { opacity: 0.7; }
+  99%           { opacity: 0.9; }
+}
+
+@keyframes blink-light {
+  0%, 100% { opacity: 0.4; }
+  50%       { opacity: 1; }
+}
+
+/* ─── KANBAN CARD GLOW ────────────────────────────────────── */
+.kanban-doing-card {
   animation: neon-glow 2s infinite ease-in-out;
+  border-left: 3px solid var(--accent-cyan);
+}
+
+/* ─── ROOM DIVIDER ───────────────────────────────────────── */
+.room-divider {
+  width: 3px;
+  align-self: stretch;
+  background: repeating-linear-gradient(
+    to bottom,
+    var(--wall-hi) 0px,
+    var(--wall-hi) calc(var(--px)*3),
+    transparent calc(var(--px)*3),
+    transparent calc(var(--px)*6)
+  );
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* ─── HEADER PANEL ───────────────────────────────────────── */
+.cockpit-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  background: rgba(6,8,20,0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 2px solid var(--border-color);
+  box-shadow: 0 4px 30px rgba(0,0,0,0.5);
+}
+
+.cockpit-title {
+  font-family: 'VT323', monospace;
+  font-size: 2.2rem;
+  color: #fff;
+  text-shadow: 0 0 12px var(--accent-blue);
+  letter-spacing: 2px;
+}
+
+/* Buttons */
+.btn-sim {
+  font-family: 'VT323', monospace;
+  font-size: 1.3rem;
+  padding: 7px 20px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 1px;
+  image-rendering: pixelated;
+}
+.btn-sim:hover { filter: brightness(1.2); transform: translateY(-1px); }
+.btn-sim:active { transform: translateY(1px); }
+.btn-start { background: var(--accent-blue); color: #000; box-shadow: 0 0 12px rgba(0,187,249,0.4); }
+.btn-stop  { background: var(--accent-red);  color: #fff; box-shadow: 0 0 12px rgba(255,0,85,0.4); }
+
+/* ─── STATUS BADGES ──────────────────────────────────────── */
+.badge {
+  font-family: 'VT323', monospace;
+  font-size: 0.85rem;
+  padding: 3px 10px;
+  border-radius: 0;
+  border: 1px solid;
+}
+.badge-cyan   { background: rgba(0,245,212,0.12); color: var(--accent-cyan);  border-color: rgba(0,245,212,0.3); }
+.badge-blue   { background: rgba(0,187,249,0.12); color: var(--accent-blue);  border-color: rgba(0,187,249,0.3); }
+.badge-green  { background: rgba(0,255,102,0.12); color: var(--text-retro);   border-color: rgba(0,255,102,0.3); }
+
+/* ─── MAIN LAYOUT ────────────────────────────────────────── */
+.cockpit-layout {
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 16px;
+  padding: 16px;
+  height: calc(100vh - 68px);
+}
+
+.cockpit-left {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: hidden;
+}
+
+.cockpit-right {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: hidden;
+}
+
+/* ─── OFFICE SECTION ─────────────────────────────────────── */
+.office-section {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.section-title {
+  font-family: 'VT323', monospace;
+  font-size: 1.3rem;
+  letter-spacing: 1px;
+}
+
+/* ─── KANBAN ──────────────────────────────────────────────── */
+.kanban-section {
+  flex: 1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.kanban-col {
+  border-radius: 0;
+  padding: 10px;
+}
+.kanban-col-header {
+  display: flex;
+  justify-content: space-between;
+  font-family: 'VT323', monospace;
+  font-size: 0.95rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.kanban-col-count {
+  padding: 1px 7px;
+}
+
+.kanban-card {
+  background: var(--bg-primary);
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+}
+.kanban-card-agent {
+  font-size: 0.7rem;
+  margin-top: 3px;
+  color: var(--accent-purple);
+}
+
+.kanban-list { overflow-y: auto; max-height: 130px; }
+
+/* ─── TERMINAL ────────────────────────────────────────────── */
+.terminal-section {
+  background: #010306;
+  border: 3px solid var(--border-color);
+  padding: 12px;
+  flex-shrink: 0;
+}
+.terminal-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 5px;
+  margin-bottom: 8px;
+}
+.terminal-log {
+  height: 130px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 1rem;
+}
+.terminal-cursor::after {
+  content: '█';
+  animation: blink-light 0.9s step-end infinite;
+  color: var(--text-retro);
+  margin-left: 3px;
 }
