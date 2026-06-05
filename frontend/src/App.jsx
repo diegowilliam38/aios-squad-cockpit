@@ -44,11 +44,11 @@ function getWalkStyle(charFile, dir = 0) {
     width: SPRITE_W,
     height: SPRITE_H,
     backgroundImage: `url('/${charFile}.png')`,
-    backgroundPositionY: `${bgY}px`,
     backgroundRepeat: "no-repeat",
     backgroundSize: "112px 96px",
     imageRendering: "pixelated",
-    animation: "sprite-walk 0.6s step-end infinite",
+    "--bg-y": `${bgY}px`,
+    animation: "sprite-walk 0.6s infinite",
   };
 }
 
@@ -59,11 +59,11 @@ function getTypeStyle(charFile, dir = 0) {
     width: SPRITE_W,
     height: SPRITE_H,
     backgroundImage: `url('/${charFile}.png')`,
-    backgroundPositionY: `${bgY}px`,
     backgroundRepeat: "no-repeat",
     backgroundSize: "112px 96px",
     imageRendering: "pixelated",
-    animation: "sprite-type 0.6s step-end infinite",
+    "--bg-y": `${bgY}px`,
+    animation: "sprite-type 0.6s infinite",
   };
 }
 
@@ -154,7 +154,7 @@ function AgentOnMap({ agent, isActive, isDoingTask, onClick }) {
   const isMoving = agent.moving;
   
   // Decide dir based on movement, or default to facing up (3) if at desk
-  const dir = isAtSeat ? 3 : 0; 
+  const dir = (isAtSeat && !isMoving) ? 3 : (agent.dir || 0); 
   
   let spriteStyle;
   if (isDoingTask && isAtSeat) {
@@ -176,7 +176,7 @@ function AgentOnMap({ agent, isActive, isDoingTask, onClick }) {
   return (
     <div
       className="agent-on-map"
-      style={{ left: `${leftPx}px`, top: `${topPx}px`, transition: "all 0.5s linear" }}
+      style={{ left: `${leftPx}px`, top: `${topPx}px`, transition: "left 0.5s linear, top 0.5s linear" }}
       onClick={() => onClick(agent.id)}
       title={`${agent.name} — ${agent.role}`}
     >
@@ -278,19 +278,35 @@ export default function App() {
           if (ag.col === ag.seatCol && ag.row === ag.seatRow) {
             return { ...ag, moving: false }; // Already at seat
           }
-          // Move 1 step towards seat
-          const dcol = Math.sign(ag.seatCol - ag.col);
-          const drow = Math.sign(ag.seatRow - ag.row);
-          return { ...ag, col: ag.col + dcol, row: ag.row + drow, moving: true };
+          // Move 1 step towards seat (orthogonal only)
+          let dcol = 0; let drow = 0;
+          if (ag.col !== ag.seatCol) {
+            dcol = Math.sign(ag.seatCol - ag.col);
+          } else if (ag.row !== ag.seatRow) {
+            drow = Math.sign(ag.seatRow - ag.row);
+          }
+          
+          let newDir = ag.dir || 0;
+          if (dcol > 0) newDir = 2; // right
+          else if (dcol < 0) newDir = 1; // left
+          else if (drow > 0) newDir = 0; // down
+          else if (drow < 0) newDir = 3; // up
+          
+          return { ...ag, col: ag.col + dcol, row: ag.row + drow, moving: true, dir: newDir };
         }
         
         // Idle agents wander randomly
         if (Math.random() > 0.4) return { ...ag, moving: false }; 
-        const dcol = Math.floor(Math.random() * 3) - 1;
-        const drow = Math.floor(Math.random() * 3) - 1;
-        const ncol = Math.max(1, Math.min(20, ag.col + dcol));
-        const nrow = Math.max(1, Math.min(21, ag.row + drow));
-        return { ...ag, col: ncol, row: nrow, moving: true };
+        const moves = [
+          { dcol: 1, drow: 0, dir: 2 },
+          { dcol: -1, drow: 0, dir: 1 },
+          { dcol: 0, drow: 1, dir: 0 },
+          { dcol: 0, drow: -1, dir: 3 }
+        ];
+        const move = moves[Math.floor(Math.random() * moves.length)];
+        const ncol = Math.max(1, Math.min(20, ag.col + move.dcol));
+        const nrow = Math.max(1, Math.min(21, ag.row + move.drow));
+        return { ...ag, col: ncol, row: nrow, moving: true, dir: move.dir };
       }));
     }, 1000);
     return () => clearInterval(iv);
