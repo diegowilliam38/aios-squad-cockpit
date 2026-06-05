@@ -181,10 +181,20 @@ body {
   background: rgba(0,0,0,0.75);
 }
 
-/* Spritesheet walk animation */
+/* Spritesheet walk animation (4 frames ping-pong: 0, 1, 2, 1) */
 @keyframes sprite-walk {
-  from { background-position-x: 0px; }
-  to   { background-position-x: -56px; } /* 4 frames * 14px width = 56px */
+  0%    { background-position-x: 0px; }
+  25%   { background-position-x: -14px; }
+  50%   { background-position-x: -28px; }
+  75%   { background-position-x: -14px; }
+  100%  { background-position-x: 0px; }
+}
+
+/* Spritesheet type animation (cols 3 & 4) */
+@keyframes sprite-type {
+  0%    { background-position-x: -42px; }
+  50%   { background-position-x: -56px; }
+  100%  { background-position-x: -42px; }
 }
 
 /* Idle bob */

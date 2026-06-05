@@ -23,25 +23,23 @@ const SPRITE_H = 24;
 // char_0..5 available — we map 12 agents to these 6 sprites (each used twice)
 const CHAR_FILES = ["char_0","char_1","char_2","char_3","char_4","char_5"];
 
-/* Build CSS background-position to extract a single frame */
-function getSpriteStyle(charFile, animate = false) {
-  const bgX = -(STANDING_FRAME * SPRITE_W);
-  const bgY = -(FACING_ROW * SPRITE_H);
-
+/* Idle style (standing still, frame 1) */
+function getSpriteStyle(charFile, dir = 0) {
+  const bgY = -(dir * SPRITE_H);
   return {
     width: SPRITE_W,
     height: SPRITE_H,
     backgroundImage: `url('/${charFile}.png')`,
-    backgroundPosition: `${bgX}px ${bgY}px`,
+    backgroundPosition: `-14px ${bgY}px`,
     backgroundRepeat: "no-repeat",
     backgroundSize: "112px 96px",
     imageRendering: "pixelated",
   };
 }
 
-/* Build walk animation style (cycles through frames) */
-function getWalkStyle(charFile) {
-  const bgY = -(FACING_ROW * SPRITE_H);
+/* Walk animation style */
+function getWalkStyle(charFile, dir = 0) {
+  const bgY = -(dir * SPRITE_H);
   return {
     width: SPRITE_W,
     height: SPRITE_H,
@@ -50,10 +48,22 @@ function getWalkStyle(charFile) {
     backgroundRepeat: "no-repeat",
     backgroundSize: "112px 96px",
     imageRendering: "pixelated",
-    // CSS animation that cycles through 4 horizontal frames
-    animation: "sprite-walk 0.6s steps(4, start) infinite",
-    // Start from frame 0 of that row
-    backgroundPositionX: "0px",
+    animation: "sprite-walk 0.6s step-end infinite",
+  };
+}
+
+/* Type animation style (sitting at desk) */
+function getTypeStyle(charFile, dir = 0) {
+  const bgY = -(dir * SPRITE_H);
+  return {
+    width: SPRITE_W,
+    height: SPRITE_H,
+    backgroundImage: `url('/${charFile}.png')`,
+    backgroundPositionY: `${bgY}px`,
+    backgroundRepeat: "no-repeat",
+    backgroundSize: "112px 96px",
+    imageRendering: "pixelated",
+    animation: "sprite-type 0.6s step-end infinite",
   };
 }
 
@@ -65,81 +75,95 @@ function getWalkStyle(charFile) {
 const AGENTS = [
   {
     id: "analyst",        name: "Analyst",     label: "@analyst",  role: "Business & ROI",
-    col: 14, row: 17, charFile: "char_0", color: "#f77f00", // Lounge room
+    seatCol: 14, seatRow: 17, col: 14, row: 17, charFile: "char_0", color: "#f77f00",
     bubbles: ["🔍 Analisando ROI...", "📊 Mapeando dores...", "💡 Insights!"],
     dialogTexts: ["Iniciando análise de ROI do projeto...", "Mapeando dores do usuário...", "Relatório de viabilidade concluído!"],
   },
   {
     id: "pm",             name: "PM",          label: "@pm",       role: "Backlog & PRD",
-    col: 17, row: 15, charFile: "char_1", color: "#fee440", // Lounge room
+    seatCol: 17, seatRow: 15, col: 17, row: 15, charFile: "char_1", color: "#fee440",
     bubbles: ["📝 PRD...", "✏️ Escrevendo...", "✅ Story!"],
     dialogTexts: ["Refinando backlog com base na análise...", "Escrevendo o PRD do produto...", "Backlog priorizado e documentado!"],
   },
   {
     id: "sm",             name: "Scrum",       label: "@sm",       role: "Sprints & Stories",
-    col: 14, row: 11, charFile: "char_2", color: "#00bbf9", // Breakroom
+    seatCol: 14, seatRow: 11, col: 14, row: 11, charFile: "char_2", color: "#00bbf9",
     bubbles: ["📋 Sprint...", "🗓️ Stories...", "✅ Planejado!"],
     dialogTexts: ["Quebrando PRD em stories atômicas...", "Estimando pontos do sprint...", "Sprint configurada no projeto!"],
   },
   {
     id: "architect",      name: "Architect",   label: "@arch",     role: "Tech Design",
-    col: 17, row: 11, charFile: "char_3", color: "#9b5de5", // Breakroom
+    seatCol: 17, seatRow: 11, col: 17, row: 11, charFile: "char_3", color: "#9b5de5",
     bubbles: ["📐 Arquitetura...", "🗺️ Mermaid...", "✅ ADR!"],
     dialogTexts: ["Propondo topologia técnica e padrões...", "Gerando diagrama C4 + Mermaid...", "ADR rascunhado para revisão!"],
   },
   {
     id: "ux-design-expert", name: "UX Expert", label: "@ux",      role: "Design System",
-    col: 3, row: 12, charFile: "char_4", color: "#ff0055", // Main office desk 1
+    seatCol: 3, seatRow: 12, col: 3, row: 12, charFile: "char_4", color: "#ff0055",
     bubbles: ["🎨 Design...", "🖌️ Wireframe...", "✅ Tokens!"],
     dialogTexts: ["Definindo tokens de design para o produto...", "Criando wireframes das telas principais...", "Design system e componentes entregues!"],
   },
   {
     id: "dev",            name: "Developer",   label: "@dev",      role: "Core Code",
-    col: 7, row: 12, charFile: "char_5", color: "#00ff66", // Main office desk 2
+    seatCol: 7, seatRow: 12, col: 7, row: 12, charFile: "char_5", color: "#00ff66",
     bubbles: ["💻 Codando...", "⌨️ Feature...", "✅ Build!"],
     dialogTexts: ["Executando subtask de implementação...", "Escrevendo código seguindo a spec...", "Feature implementada. Build verde!"],
   },
   {
     id: "prompt-engineer", name: "Prompt Eng.", label: "@prompt", role: "AI Guard",
-    col: 3, row: 15, charFile: "char_0", color: "#00f5d4", // Main office desk 3
+    seatCol: 3, seatRow: 15, col: 3, row: 15, charFile: "char_0", color: "#00f5d4",
     bubbles: ["🛡️ Prompts...", "🤖 Testing LLM...", "✅ Validado!"],
     dialogTexts: ["Revisando prompts LangGraph e RAG...", "Testando resistência a injection...", "Prompts calibrados e documentados!"],
   },
   {
     id: "security-auditor", name: "SecAudit",  label: "@sec",     role: "Security",
-    col: 7, row: 15, charFile: "char_1", color: "#d62828", // Main office desk 4
+    seatCol: 7, seatRow: 15, col: 7, row: 15, charFile: "char_1", color: "#d62828",
     bubbles: ["🔐 Auditando...", "🔎 CVEs...", "✅ Zero críticos!"],
     dialogTexts: ["Iniciando auditoria de segurança do código...", "Rodando Snyk scan e checando CVEs...", "Auditoria concluída. Zero itens críticos!"],
   },
   {
     id: "lint-and-validate", name: "Linter",   label: "@lint",    role: "Style & Lint",
-    col: 3, row: 18, charFile: "char_2", color: "#94a3b8", // Main office bottom
+    seatCol: 3, seatRow: 18, col: 3, row: 18, charFile: "char_2", color: "#94a3b8",
     bubbles: ["🧹 Lint...", "✍️ Padrões...", "✅ Zero erros!"],
     dialogTexts: ["Executando ESLint e checagens de padrão...", "Corrigindo formatação e consistência...", "Código padronizado. Zero erros de lint!"],
   },
   {
     id: "doc-coauthoring", name: "DocWriter",  label: "@doc",     role: "Documentation",
-    col: 7, row: 18, charFile: "char_3", color: "#a2d2ff", // Main office bottom
+    seatCol: 7, seatRow: 18, col: 7, row: 18, charFile: "char_3", color: "#a2d2ff",
     bubbles: ["📚 Docs...", "✏️ ADR...", "✅ Publicado!"],
     dialogTexts: ["Documentando enquanto o contexto está vivo...", "Gerando ADR da decisão arquitetural...", "Documentação estruturada e commitada!"],
   },
   {
     id: "qa",             name: "QA Tester",   label: "@qa",      role: "Tests E2E",
-    col: 9, row: 14, charFile: "char_4", color: "#e2e8f0", // Main office middle
+    seatCol: 9, seatRow: 14, col: 9, row: 14, charFile: "char_4", color: "#e2e8f0",
     bubbles: ["🧪 Testing...", "🐛 Bug found!", "✅ Spec ok!"],
     dialogTexts: ["Revisando spec vs implementação...", "Rodando testes unitários e E2E...", "Build aprovado. Spec 100% coberta!"],
   },
   {
     id: "devops",         name: "DevOps",      label: "@devops",  role: "CI/CD & Push",
-    col: 9, row: 16, charFile: "char_5", color: "#ffb703", // Main office middle
+    seatCol: 9, seatRow: 16, col: 9, row: 16, charFile: "char_5", color: "#ffb703",
     bubbles: ["🚀 Deploying...", "⚙️ CI/CD...", "✅ Push!"],
     dialogTexts: ["Configurando pipeline de CI/CD...", "Executando git push para produção...", "Deploy concluído com sucesso! 🎉"],
   },
 ];
 
 /* ─── AGENT SPRITE ON MAP ────────────────────────────────── */
-function AgentOnMap({ agent, isActive, onClick }) {
-  const spriteStyle = isActive ? getWalkStyle(agent.charFile) : getSpriteStyle(agent.charFile);
+function AgentOnMap({ agent, isActive, isDoingTask, onClick }) {
+  // If doing a task and at seat, sit and type. Otherwise walk or stand idle.
+  const isAtSeat = agent.col === agent.seatCol && agent.row === agent.seatRow;
+  const isMoving = agent.moving;
+  
+  // Decide dir based on movement, or default to facing up (3) if at desk
+  const dir = isAtSeat ? 3 : 0; 
+  
+  let spriteStyle;
+  if (isDoingTask && isAtSeat) {
+    spriteStyle = getTypeStyle(agent.charFile, dir);
+  } else if (isMoving || (isActive && !isAtSeat)) {
+    spriteStyle = getWalkStyle(agent.charFile, dir);
+  } else {
+    spriteStyle = getSpriteStyle(agent.charFile, dir);
+  }
 
   // Cycle through bubbles while active
   const bubbleIdx = isActive ? Math.floor(Date.now() / 2500) % agent.bubbles.length : 0;
@@ -249,19 +273,28 @@ export default function App() {
   useEffect(() => {
     const iv = setInterval(() => {
       setAgentsPos(prev => prev.map(ag => {
-        // Only move agents that are not currently active/doing a task (or give them a chance to pace)
-        if (Math.random() > 0.3) return ag; 
-        // Move randomly -1, 0, or 1 tile
+        // If they are active/doing task, they must walk to their seat
+        if (ag.id === activeAgent || tasks.some(t => t.agent === ag.id && t.status === "doing")) {
+          if (ag.col === ag.seatCol && ag.row === ag.seatRow) {
+            return { ...ag, moving: false }; // Already at seat
+          }
+          // Move 1 step towards seat
+          const dcol = Math.sign(ag.seatCol - ag.col);
+          const drow = Math.sign(ag.seatRow - ag.row);
+          return { ...ag, col: ag.col + dcol, row: ag.row + drow, moving: true };
+        }
+        
+        // Idle agents wander randomly
+        if (Math.random() > 0.4) return { ...ag, moving: false }; 
         const dcol = Math.floor(Math.random() * 3) - 1;
         const drow = Math.floor(Math.random() * 3) - 1;
-        // Bounds checking (21 cols, 22 rows)
         const ncol = Math.max(1, Math.min(20, ag.col + dcol));
         const nrow = Math.max(1, Math.min(21, ag.row + drow));
-        return { ...ag, col: ncol, row: nrow };
+        return { ...ag, col: ncol, row: nrow, moving: true };
       }));
-    }, 2000);
+    }, 1000);
     return () => clearInterval(iv);
-  }, []);
+  }, [activeAgent, tasks]);
 
   /* Load project data */
   const loadData = useCallback((proj) => {
@@ -376,7 +409,13 @@ export default function App() {
 
               {/* AGENTS */}
               {agentsPos.map(ag => (
-                <AgentOnMap key={ag.id} agent={ag} isActive={activeAgent===ag.id} onClick={handleClick} />
+                <AgentOnMap 
+                  key={ag.id} 
+                  agent={ag} 
+                  isActive={activeAgent===ag.id} 
+                  isDoingTask={tasks.some(t => t.agent === ag.id && t.status === "doing")}
+                  onClick={handleClick} 
+                />
               ))}
             </div>
 
