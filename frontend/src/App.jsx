@@ -15,9 +15,17 @@ const FRAME_ROWS = 4;    // 4 directions
 const STANDING_FRAME = 0; // frame 0 is usually standing or first walk frame
 const FACING_ROW = 0;    // row 0 = facing down (towards viewer)
 
-// Display scale — each frame is exactly 14x24 pixels
+// Display scale — each frame is exactly 16x32 pixels (3 rows: down, right, up)
 const SPRITE_W = 16;
-const SPRITE_H = 24;
+const SPRITE_H = 32;
+
+function getFacingRow(dir) {
+  if (dir === 0) return 0; // down
+  if (dir === 1) return 1; // left (uses right row, flipped)
+  if (dir === 2) return 1; // right
+  if (dir === 3) return 2; // up
+  return 0;
+}
 
 // The sprite images are fetched from the pixel-agents repo assets
 // char_0..5 available — we map 12 agents to these 6 sprites (each used twice)
@@ -25,7 +33,8 @@ const CHAR_FILES = ["char_0","char_1","char_2","char_3","char_4","char_5"];
 
 /* Idle style (standing still, frame 1) */
 function getSpriteStyle(charFile, dir = 0) {
-  const bgY = -(dir * SPRITE_H);
+  const row = getFacingRow(dir);
+  const bgY = -(row * SPRITE_H);
   return {
     width: SPRITE_W,
     height: SPRITE_H,
@@ -34,12 +43,14 @@ function getSpriteStyle(charFile, dir = 0) {
     backgroundRepeat: "no-repeat",
     backgroundSize: "112px 96px",
     imageRendering: "pixelated",
+    transform: dir === 1 ? "scaleX(-1)" : "none",
   };
 }
 
 /* Walk animation style */
 function getWalkStyle(charFile, dir = 0) {
-  const bgY = -(dir * SPRITE_H);
+  const row = getFacingRow(dir);
+  const bgY = -(row * SPRITE_H);
   return {
     width: SPRITE_W,
     height: SPRITE_H,
@@ -49,12 +60,14 @@ function getWalkStyle(charFile, dir = 0) {
     imageRendering: "pixelated",
     "--bg-y": `${bgY}px`,
     animation: "sprite-walk 0.6s infinite",
+    transform: dir === 1 ? "scaleX(-1)" : "none",
   };
 }
 
 /* Type animation style (sitting at desk) */
 function getTypeStyle(charFile, dir = 0) {
-  const bgY = -(dir * SPRITE_H);
+  const row = getFacingRow(dir);
+  const bgY = -(row * SPRITE_H);
   return {
     width: SPRITE_W,
     height: SPRITE_H,
@@ -64,6 +77,7 @@ function getTypeStyle(charFile, dir = 0) {
     imageRendering: "pixelated",
     "--bg-y": `${bgY}px`,
     animation: "sprite-type 0.6s infinite",
+    transform: dir === 1 ? "scaleX(-1)" : "none",
   };
 }
 
