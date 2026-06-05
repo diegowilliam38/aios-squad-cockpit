@@ -13,7 +13,7 @@ Possui um efeito de sobreposição CRT e controle autônomo de zoom na área cen
 ### Agent Sprites
 Os 12 agentes do squad interagem com o mapa através de uma matriz de posições (x,y mapeados em colunas e linhas).
 A máquina de estados para cada agente engloba 3 fases visuais:
-- **IDLE/Wandering**: Perambulam aleatoriamente ortogonalmente pelo escritório.
+- **IDLE/Wandering**: Perambulam aleatoriamente ortogonalmente pelo escritório. O movimento é confinado matematicamente aos limites visíveis do piso (Colunas 1 a 18, Linhas 10 a 19) para evitar que os sprites saiam do mapa ou flutuem no void.
 - **WALKING**: Deslocam-se pelo Grid 2D em direção as suas mesas quando recebem uma Task.
 - **WORKING**: Sentam-se no PC e ativam animação cíclica de trabalho na mesa quando o status está ativo.
 
